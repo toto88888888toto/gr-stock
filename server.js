@@ -15,7 +15,7 @@ const CREDENTIALS = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 const SHEET_ID = process.env.SHEET_ID || "1e7jXUY4kC0ecGldIEBSsewnhPJSvtiwvmTIm7K8uqoA";
 const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || "1PyapeEZLjKVBmgjM6JPuVpi0LmLki8Pm";
 const SHEET_NAME = "Items";
-const CUSTOMER_SHEET_NAME = "Customers";
+const CUSTOMER_SHEET_NAME = "Clients";
 
 const auth = new google.auth.GoogleAuth({
   credentials: CREDENTIALS,
