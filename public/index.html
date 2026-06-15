@@ -32,6 +32,36 @@
 
   <main class="container page">
 
+    <!-- CUSTOMERS -->
+    <section class="card">
+      <div class="section-head">
+        <h2>Customers</h2>
+        <p class="section-sub">Manage customer logos — logos appear on each product card</p>
+      </div>
+
+      <form id="customerForm" class="customer-form" enctype="multipart/form-data">
+        <input type="hidden" id="editingCustomerId" />
+
+        <div class="field">
+          <label for="customerName">Customer Name</label>
+          <input id="customerName" type="text" placeholder="Enter customer name" required />
+        </div>
+
+        <div class="field">
+          <label for="customerLogo">Logo Image</label>
+          <input id="customerLogo" type="file" accept="image/*" />
+          <div id="customerLogoPreview" class="customer-logo-preview"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="saveCustomerBtn" type="submit">Add Customer</button>
+          <button class="btn btn-secondary" id="cancelCustomerBtn" type="button">Cancel</button>
+        </div>
+      </form>
+
+      <div id="customerList" class="customer-list"></div>
+    </section>
+
     <!-- ADD PRODUCT -->
     <section class="card">
       <div class="section-head">
@@ -149,6 +179,7 @@
         </div>
 
       </form>
+      </div><!-- /collapsible-body -->
     </section>
 
     <!-- SEARCH -->
@@ -241,9 +272,12 @@
       <button type="button" class="modal-close" id="modalClose">✕</button>
 
       <div class="modal-header">
-        <div>
-          <div class="modal-itemno" id="modalItemNo">GR000001</div>
-          <h2 id="modalItemName">Item Name</h2>
+        <div class="modal-title-row">
+          <div id="modalCustomerLogo" class="modal-customer-logo hidden"></div>
+          <div>
+            <div class="modal-itemno" id="modalItemNo">GR000001</div>
+            <h2 id="modalItemName">Item Name</h2>
+          </div>
         </div>
 
         <div class="modal-actions">

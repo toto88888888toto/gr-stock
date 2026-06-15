@@ -15,6 +15,7 @@ const CREDENTIALS = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 const SHEET_ID = process.env.SHEET_ID || "1e7jXUY4kC0ecGldIEBSsewnhPJSvtiwvmTIm7K8uqoA";
 const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || "1PyapeEZLjKVBmgjM6JPuVpi0LmLki8Pm";
 const SHEET_NAME = "Items";
+const CUSTOMER_SHEET_NAME = "Customers";
 
 const auth = new google.auth.GoogleAuth({
   credentials: CREDENTIALS,
@@ -44,6 +45,8 @@ const HEADERS = [
   "capitalCurrency", "capitalPrice", "wholesaleCurrency", "wholesalePrice",
   "descEn", "descLa", "photos", "createdAt"
 ];
+
+const CUSTOMER_HEADERS = ["id", "name", "logoUrl"];
 
 // ── Helpers ────────────────────────────────────────────────────
 function normalizeMoney(value) {
@@ -130,6 +133,49 @@ async function getAllItems() {
       createdAt: row[12] || ""
     }))
     .filter(item => item.id || item.itemName);
+}
+
+// ── Customer sheet helpers ─────────────────────────────────────
+async function ensureCustomerSheet() {
+  // Ensure the Customers sheet exists
+  const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+  const exists = spreadsheet.data.sheets.some(s => s.properties.title === CUSTOMER_SHEET_NAME);
+  if (!exists) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SHEET_ID,
+      requestBody: { requests: [{ addSheet: { properties: { title: CUSTOMER_SHEET_NAME } } }] }
+    });
+  }
+  // Ensure headers
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range: `${CUSTOMER_SHEET_NAME}!A1:C1`
+  });
+  if (!res.data.values || res.data.values.length === 0) {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${CUSTOMER_SHEET_NAME}!A1`,
+      valueInputOption: "RAW",
+      requestBody: { values: [CUSTOMER_HEADERS] }
+    });
+  }
+}
+
+async function getAllCustomers() {
+  await ensureCustomerSheet();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range: `${CUSTOMER_SHEET_NAME}!A:C`
+  });
+  const rows = res.data.values || [];
+  if (rows.length <= 1) return [];
+  return rows.slice(1)
+    .map(row => ({
+      id: row[0] || "",
+      name: row[1] || "",
+      logoUrl: row[2] || ""
+    }))
+    .filter(c => c.id || c.name);
 }
 
 // ── Google Drive helpers ───────────────────────────────────────
@@ -385,6 +431,153 @@ app.get("/api/download-excel", async (req, res) => {
     res.end();
   } catch (error) {
     console.error("GET /api/download-excel error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ── GET CUSTOMERS ──────────────────────────────────────────────
+app.get("/api/customers", async (req, res) => {
+  try {
+    const customers = await getAllCustomers();
+    return res.json({ success: true, customers });
+  } catch (error) {
+    console.error("GET /api/customers error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ── CREATE CUSTOMER ────────────────────────────────────────────
+app.post("/api/customers", upload.single("logo"), async (req, res) => {
+  try {
+    const name = String(req.body.name || "").trim();
+    if (!name) return res.status(400).json({ success: false, message: "Customer name is required" });
+
+    let logoUrl = "";
+    if (req.file) {
+      logoUrl = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
+    }
+
+    const customer = { id: uuidv4(), name, logoUrl };
+
+    await ensureCustomerSheet();
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: `${CUSTOMER_SHEET_NAME}!A:C`,
+      valueInputOption: "RAW",
+      requestBody: { values: [[customer.id, customer.name, customer.logoUrl]] }
+    });
+
+    return res.json({ success: true, customer });
+  } catch (error) {
+    console.error("POST /api/customers error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ── UPDATE CUSTOMER ────────────────────────────────────────────
+app.put("/api/customers/:id", upload.single("logo"), async (req, res) => {
+  try {
+    const targetId = String(req.params.id || "").trim();
+    await ensureCustomerSheet();
+
+    const sheetRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${CUSTOMER_SHEET_NAME}!A:C`
+    });
+
+    const rows = sheetRes.data.values || [];
+    let targetRowIndex = -1;
+    let oldLogoUrl = "";
+
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0] || "").trim() === targetId) {
+        targetRowIndex = i + 1;
+        oldLogoUrl = rows[i][2] || "";
+        break;
+      }
+    }
+
+    if (targetRowIndex === -1) {
+      return res.status(404).json({ success: false, message: "Customer not found" });
+    }
+
+    const name = String(req.body.name || "").trim();
+    if (!name) return res.status(400).json({ success: false, message: "Customer name is required" });
+
+    let logoUrl = oldLogoUrl;
+    if (req.file) {
+      logoUrl = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
+      if (oldLogoUrl) await deleteFromDrive(oldLogoUrl);
+    } else if (req.body.removeLogo === "true") {
+      if (oldLogoUrl) await deleteFromDrive(oldLogoUrl);
+      logoUrl = "";
+    }
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${CUSTOMER_SHEET_NAME}!A${targetRowIndex}:C${targetRowIndex}`,
+      valueInputOption: "RAW",
+      requestBody: { values: [[targetId, name, logoUrl]] }
+    });
+
+    return res.json({ success: true, customer: { id: targetId, name, logoUrl } });
+  } catch (error) {
+    console.error("PUT /api/customers/:id error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ── DELETE CUSTOMER ────────────────────────────────────────────
+app.delete("/api/customers/:id", async (req, res) => {
+  try {
+    const targetId = String(req.params.id || "").trim();
+    await ensureCustomerSheet();
+
+    const sheetRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${CUSTOMER_SHEET_NAME}!A:C`
+    });
+
+    const rows = sheetRes.data.values || [];
+    let targetRowIndex = -1;
+    let logoUrl = "";
+
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0] || "").trim() === targetId) {
+        targetRowIndex = i + 1;
+        logoUrl = rows[i][2] || "";
+        break;
+      }
+    }
+
+    if (targetRowIndex === -1) {
+      return res.status(404).json({ success: false, message: "Customer not found" });
+    }
+
+    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+    const sheet = spreadsheet.data.sheets.find(s => s.properties.title === CUSTOMER_SHEET_NAME);
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SHEET_ID,
+      requestBody: {
+        requests: [{
+          deleteDimension: {
+            range: {
+              sheetId: sheet.properties.sheetId,
+              dimension: "ROWS",
+              startIndex: targetRowIndex - 1,
+              endIndex: targetRowIndex
+            }
+          }
+        }]
+      }
+    });
+
+    if (logoUrl) await deleteFromDrive(logoUrl);
+
+    return res.json({ success: true, message: "Customer deleted" });
+  } catch (error) {
+    console.error("DELETE /api/customers/:id error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 });
