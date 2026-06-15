@@ -644,12 +644,13 @@ function renderProducts(items) {
             }
           </div>
 
-          <div class="card-bottom-row">
+          <div class="card-info">
+            <div class="card-itemno">${escapeHtml(item.itemNo || "-")}</div>
             <h3 class="card-title">${escapeHtml(item.itemName || "-")}</h3>
-            <div class="card-price-pill">${wholesale}</div>
+            <div class="card-bottom-row">
+              <div class="card-price-pill">${wholesale}</div>
+            </div>
           </div>
-
-          <div class="card-itemno">${escapeHtml(item.itemNo || "-")}</div>
         </div>
       </div>
     `;
