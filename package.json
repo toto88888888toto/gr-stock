@@ -1,7 +1,10 @@
 {
   "name": "gr-stock",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "server.js",
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
     "start": "node server.js"
   },
