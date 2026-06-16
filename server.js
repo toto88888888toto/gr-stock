@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const { google } = require("googleapis");
-const { Readable } = require("stream");
+const { v2: cloudinary } = require("cloudinary");
 const ExcelJS = require("exceljs");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
@@ -13,20 +13,22 @@ const PORT = process.env.PORT || 3000;
 // ── Google config ──────────────────────────────────────────────
 const CREDENTIALS = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 const SHEET_ID = process.env.SHEET_ID || "1e7jXUY4kC0ecGldIEBSsewnhPJSvtiwvmTIm7K8uqoA";
-const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || "1PyapeEZLjKVBmgjM6JPuVpi0LmLki8Pm";
 const SHEET_NAME = "Items";
 const CUSTOMER_SHEET_NAME = "Clients";
 
 const auth = new google.auth.GoogleAuth({
   credentials: CREDENTIALS,
-  scopes: [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-  ]
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"]
 });
 
 const sheets = google.sheets({ version: "v4", auth });
-const drive = google.drive({ version: "v3", auth });
+
+// ── Cloudinary config ──────────────────────────────────────────
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "darzabnzc",
+  api_key: process.env.CLOUDINARY_API_KEY || "496167853975567",
+  api_secret: process.env.CLOUDINARY_API_SECRET || "OU_Kr_sROSOltXtujQDZioA84so"
+});
 
 // ── Multer (memory storage — no local files) ───────────────────
 const upload = multer({
@@ -178,26 +180,26 @@ async function getAllCustomers() {
     .filter(c => c.id || c.name);
 }
 
-// ── Google Drive helpers ───────────────────────────────────────
-async function uploadToDrive(buffer, filename, mimeType) {
-  const file = await drive.files.create({
-    requestBody: { name: filename, parents: [DRIVE_FOLDER_ID] },
-    media: { mimeType, body: Readable.from(buffer) },
-    fields: "id"
+// ── Cloudinary helpers ────────────────────────────────────────
+async function uploadToCloudinary(buffer, filename) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "gr-stock", resource_type: "image" },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result.secure_url);
+      }
+    );
+    stream.end(buffer);
   });
-  await drive.permissions.create({
-    fileId: file.data.id,
-    requestBody: { role: "reader", type: "anyone" }
-  });
-  return `https://drive.google.com/uc?id=${file.data.id}`;
 }
 
-async function deleteFromDrive(url) {
+async function deleteFromCloudinary(url) {
   try {
-    const match = String(url || "").match(/id=([^&]+)/);
-    if (match) await drive.files.delete({ fileId: match[1] });
+    const match = String(url || "").match(/gr-stock\/([^.]+)/);
+    if (match) await cloudinary.uploader.destroy(`gr-stock/${match[1]}`);
   } catch (e) {
-    console.warn("Failed to delete Drive file:", e.message);
+    console.warn("Failed to delete Cloudinary file:", e.message);
   }
 }
 
@@ -224,7 +226,7 @@ app.post("/api/items", upload.array("photos", 20), async (req, res) => {
 
     const photoPaths = [];
     for (const file of (req.files || [])) {
-      const url = await uploadToDrive(file.buffer, file.originalname, file.mimetype);
+      const url = await uploadToCloudinary(file.buffer, file.originalname);
       photoPaths.push(url);
     }
 
@@ -304,7 +306,7 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
     const keptPhotos = parsePhotos(req.body.existingPhotos);
     const newPhotoPaths = [];
     for (const file of (req.files || [])) {
-      const url = await uploadToDrive(file.buffer, file.originalname, file.mimetype);
+      const url = await uploadToCloudinary(file.buffer, file.originalname);
       newPhotoPaths.push(url);
     }
     const finalPhotos = uniqueArray([...keptPhotos, ...newPhotoPaths]);
@@ -344,7 +346,7 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
     });
 
     for (const photo of removedPhotos) {
-      await deleteFromDrive(photo);
+      await deleteFromCloudinary(photo);
     }
 
     return res.json({ success: true, item: updatedItem });
@@ -401,7 +403,7 @@ app.delete("/api/items/:id", async (req, res) => {
     });
 
     for (const photo of targetPhotos) {
-      await deleteFromDrive(photo);
+      await deleteFromCloudinary(photo);
     }
 
     return res.json({ success: true, message: "Item deleted successfully" });
@@ -454,7 +456,7 @@ app.post("/api/customers", upload.single("logo"), async (req, res) => {
 
     let logoUrl = "";
     if (req.file) {
-      logoUrl = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
+      logoUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
     }
 
     const customer = { id: uuidv4(), name, logoUrl };
@@ -506,10 +508,10 @@ app.put("/api/customers/:id", upload.single("logo"), async (req, res) => {
 
     let logoUrl = oldLogoUrl;
     if (req.file) {
-      logoUrl = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
-      if (oldLogoUrl) await deleteFromDrive(oldLogoUrl);
+      logoUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+      if (oldLogoUrl) await deleteFromCloudinary(oldLogoUrl);
     } else if (req.body.removeLogo === "true") {
-      if (oldLogoUrl) await deleteFromDrive(oldLogoUrl);
+      if (oldLogoUrl) await deleteFromCloudinary(oldLogoUrl);
       logoUrl = "";
     }
 
@@ -573,7 +575,7 @@ app.delete("/api/customers/:id", async (req, res) => {
       }
     });
 
-    if (logoUrl) await deleteFromDrive(logoUrl);
+    if (logoUrl) await deleteFromCloudinary(logoUrl);
 
     return res.json({ success: true, message: "Customer deleted" });
   } catch (error) {

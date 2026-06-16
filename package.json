@@ -1,6 +1,6 @@
 {
   "name": "gr-stock",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "server.js",
   "engines": {
     "node": "22"
@@ -9,6 +9,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "exceljs": "^4.4.0",
     "express": "^4.21.2",
