@@ -608,6 +608,35 @@ app.delete("/api/customers/:id", async (req, res) => {
 });
 
 // ── START ──────────────────────────────────────────────────────
+
+// ── DIAGNOSTIC: test Drive credentials (remove after fix) ─────
+app.get("/api/drive-test", async (req, res) => {
+  try {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+    const folderId = process.env.DRIVE_FOLDER_ID;
+    const info = {
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      hasRefreshToken: !!refreshToken,
+      hasFolderId: !!folderId,
+      clientIdPrefix: clientId ? clientId.substring(0, 20) + "..." : null,
+      refreshTokenPrefix: refreshToken ? refreshToken.substring(0, 20) + "..." : null,
+    };
+    if (!clientId || !clientSecret || !refreshToken) {
+      return res.json({ ok: false, info, error: "Missing credentials" });
+    }
+    const oauth2 = new google.auth.OAuth2(clientId, clientSecret, "http://localhost:3333/callback");
+    oauth2.setCredentials({ refresh_token: refreshToken });
+    const tokenResponse = await oauth2.getAccessToken();
+    res.json({ ok: true, info, tokenOk: !!tokenResponse.token });
+  } catch (err) {
+    res.json({ ok: false, error: err.message, code: err.code, details: err.response && err.response.data });
+  }
+});
+
+// ── START ──────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`GR Stock server running on http://localhost:${PORT}`);
 });
