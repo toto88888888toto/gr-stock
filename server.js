@@ -479,8 +479,11 @@ app.post("/api/customers", upload.single("logo"), async (req, res) => {
     if (!name) return res.status(400).json({ success: false, message: "Customer name is required" });
 
     let logoUrl = "";
+    console.log("[Customer POST] name:", name, "hasFile:", !!req.file);
     if (req.file) {
+      console.log("[Customer POST] uploading file:", req.file.originalname, req.file.size);
       logoUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+      console.log("[Customer POST] uploaded URL:", logoUrl);
     }
 
     const customer = { id: uuidv4(), name, logoUrl };
