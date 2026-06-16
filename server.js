@@ -607,32 +607,52 @@ app.delete("/api/customers/:id", async (req, res) => {
   }
 });
 
-// ── START ──────────────────────────────────────────────────────
 
-// ── DIAGNOSTIC: test Drive credentials (remove after fix) ─────
+// ── OAuth flow to generate refresh token ───────────────────────
+const RAILWAY_REDIRECT = "https://gr-stock-production-83a5.up.railway.app/oauth-callback";
+
+app.get("/oauth-start", (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return res.send("Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET");
+  const oauth2 = new google.auth.OAuth2(clientId, clientSecret, RAILWAY_REDIRECT);
+  const url = oauth2.generateAuthUrl({
+    access_type: "offline",
+    prompt: "consent",
+    scope: ["https://www.googleapis.com/auth/drive"],
+  });
+  res.redirect(url);
+});
+
+app.get("/oauth-callback", async (req, res) => {
+  const code = req.query.code;
+  if (!code) return res.send("No code received");
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const oauth2 = new google.auth.OAuth2(clientId, clientSecret, RAILWAY_REDIRECT);
+  try {
+    const { tokens } = await oauth2.getToken(code);
+    res.send(`<h2>✅ Token generated!</h2>
+<p>Copy this into Railway as <strong>GOOGLE_REFRESH_TOKEN</strong>:</p>
+<textarea rows="4" cols="80" onclick="this.select()">${tokens.refresh_token}</textarea>
+<p>Then redeploy on Railway and test again.</p>`);
+  } catch (e) {
+    res.send("Error: " + e.message);
+  }
+});
+
+// ── DIAGNOSTIC ─────────────────────────────────────────────────
 app.get("/api/drive-test", async (req, res) => {
   try {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
-    const folderId = process.env.DRIVE_FOLDER_ID;
-    const info = {
-      hasClientId: !!clientId,
-      hasClientSecret: !!clientSecret,
-      hasRefreshToken: !!refreshToken,
-      hasFolderId: !!folderId,
-      clientIdPrefix: clientId ? clientId.substring(0, 20) + "..." : null,
-      refreshTokenPrefix: refreshToken ? refreshToken.substring(0, 20) + "..." : null,
-    };
-    if (!clientId || !clientSecret || !refreshToken) {
-      return res.json({ ok: false, info, error: "Missing credentials" });
-    }
-    const oauth2 = new google.auth.OAuth2(clientId, clientSecret, "http://localhost:3333/callback");
+    const oauth2 = new google.auth.OAuth2(clientId, clientSecret, RAILWAY_REDIRECT);
     oauth2.setCredentials({ refresh_token: refreshToken });
     const tokenResponse = await oauth2.getAccessToken();
-    res.json({ ok: true, info, tokenOk: !!tokenResponse.token });
+    res.json({ ok: true, tokenOk: !!tokenResponse.token });
   } catch (err) {
-    res.json({ ok: false, error: err.message, code: err.code, details: err.response && err.response.data });
+    res.json({ ok: false, error: err.message, details: err.response && err.response.data });
   }
 });
 
