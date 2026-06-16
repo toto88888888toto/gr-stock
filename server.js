@@ -619,6 +619,7 @@ app.get("/oauth-start", (req, res) => {
   const url = oauth2.generateAuthUrl({
     access_type: "offline",
     prompt: "consent",
+    login_hint: "outamavongsa.toto@gmail.com",
     scope: ["https://www.googleapis.com/auth/drive"],
   });
   res.redirect(url);
