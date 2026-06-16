@@ -107,6 +107,15 @@ function generateNextItemNo(items) {
 
 // ── Google Sheets helpers ──────────────────────────────────────
 async function ensureHeaders() {
+  // Auto-create "Items" sheet if it doesn't exist
+  const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+  const exists = spreadsheet.data.sheets.some(s => s.properties.title === SHEET_NAME);
+  if (!exists) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SHEET_ID,
+      requestBody: { requests: [{ addSheet: { properties: { title: SHEET_NAME } } }] }
+    });
+  }
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
     range: `${SHEET_NAME}!A1:M1`
