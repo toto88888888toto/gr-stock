@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const { google } = require("googleapis");
-const { v2: cloudinary } = require("cloudinary");
+const { Readable } = require("stream");
 const ExcelJS = require("exceljs");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
@@ -10,25 +10,40 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Google config ──────────────────────────────────────────────
-const CREDENTIALS = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+// ── Google Sheets config (service account) ────────────────────
+const CREDENTIALS = JSON.parse(process.env.GOOGLE_CREDENTIALS || process.env.GOOGLE_SERVICE_ACCOUNT);
 const SHEET_ID = process.env.SHEET_ID || "1e7jXUY4kC0ecGldIEBSsewnhPJSvtiwvmTIm7K8uqoA";
+const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || "";
 const SHEET_NAME = "Items";
 const CUSTOMER_SHEET_NAME = "Clients";
 
-const auth = new google.auth.GoogleAuth({
+const sheetsAuth = new google.auth.GoogleAuth({
   credentials: CREDENTIALS,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"]
 });
+const sheets = google.sheets({ version: "v4", auth: sheetsAuth });
 
-const sheets = google.sheets({ version: "v4", auth });
-
-// ── Cloudinary config ──────────────────────────────────────────
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "darzabnzc",
-  api_key: process.env.CLOUDINARY_API_KEY || "496167853975567",
-  api_secret: process.env.CLOUDINARY_API_SECRET || "OU_Kr_sROSOltXtujQDZioA84so"
-});
+// ── Google Drive config (OAuth2 - personal account) ───────────
+let drive = null;
+async function initDrive() {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+  if (!clientId || !clientSecret || !refreshToken || !DRIVE_FOLDER_ID) {
+    console.log("[Drive] OAuth credentials not set — Drive uploads disabled");
+    return;
+  }
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, "http://localhost:3333/callback");
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
+  try {
+    await oauth2Client.getAccessToken();
+    drive = google.drive({ version: "v3", auth: oauth2Client });
+    console.log("[Drive] Google Drive initialized (OAuth2)");
+  } catch (e) {
+    console.error("[Drive] OAuth init failed:", e.message);
+  }
+}
+initDrive();
 
 // ── Multer (memory storage — no local files) ───────────────────
 const upload = multer({
@@ -180,26 +195,29 @@ async function getAllCustomers() {
     .filter(c => c.id || c.name);
 }
 
-// ── Cloudinary helpers ────────────────────────────────────────
+// ── Google Drive helpers (OAuth2) ─────────────────────────────
 async function uploadToCloudinary(buffer, filename) {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { folder: "gr-stock", resource_type: "image" },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result.secure_url);
-      }
-    );
-    stream.end(buffer);
+  if (!drive) throw new Error("Google Drive not initialized");
+  const mimeType = filename.match(/\.png$/i) ? "image/png" : "image/jpeg";
+  const file = await drive.files.create({
+    requestBody: { name: filename, parents: [DRIVE_FOLDER_ID] },
+    media: { mimeType, body: Readable.from(buffer) },
+    fields: "id"
   });
+  await drive.permissions.create({
+    fileId: file.data.id,
+    requestBody: { role: "reader", type: "anyone" }
+  });
+  return `https://drive.google.com/uc?id=${file.data.id}`;
 }
 
 async function deleteFromCloudinary(url) {
   try {
-    const match = String(url || "").match(/gr-stock\/([^.]+)/);
-    if (match) await cloudinary.uploader.destroy(`gr-stock/${match[1]}`);
+    if (!drive) return;
+    const match = String(url || "").match(/id=([^&]+)/);
+    if (match) await drive.files.delete({ fileId: match[1] });
   } catch (e) {
-    console.warn("Failed to delete Cloudinary file:", e.message);
+    console.warn("Failed to delete Drive file:", e.message);
   }
 }
 
