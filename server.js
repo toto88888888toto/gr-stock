@@ -41,6 +41,22 @@ function initDrive() {
 }
 initDrive();
 
+// ── Get or create a named subfolder inside DRIVE_FOLDER_ID ─────
+async function getOrCreateSubfolder(name) {
+  if (!drive) throw new Error("Drive not initialized");
+  const res = await drive.files.list({
+    q: `name='${name}' and mimeType='application/vnd.google-apps.folder' and '${DRIVE_FOLDER_ID}' in parents and trashed=false`,
+    fields: "files(id, name)",
+  });
+  if (res.data.files.length > 0) return res.data.files[0].id;
+  const folder = await drive.files.create({
+    requestBody: { name, mimeType: "application/vnd.google-apps.folder", parents: [DRIVE_FOLDER_ID] },
+    fields: "id",
+  });
+  console.log("[Drive] Created subfolder:", name, folder.data.id);
+  return folder.data.id;
+}
+
 // ── Multer (memory storage — no local files) ───────────────────
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -202,11 +218,11 @@ async function getAllCustomers() {
 }
 
 // ── Google Drive helpers (OAuth2) ─────────────────────────────
-async function uploadToCloudinary(buffer, filename) {
+async function uploadToCloudinary(buffer, filename, folderId = DRIVE_FOLDER_ID) {
   if (!drive) throw new Error("Google Drive not initialized");
   const mimeType = filename.match(/\.png$/i) ? "image/png" : "image/jpeg";
   const file = await drive.files.create({
-    requestBody: { name: filename, parents: [DRIVE_FOLDER_ID] },
+    requestBody: { name: filename, parents: [folderId] },
     media: { mimeType, body: Readable.from(buffer) },
     fields: "id"
   });
@@ -482,7 +498,8 @@ app.post("/api/customers", upload.single("logo"), async (req, res) => {
     console.log("[Customer POST] name:", name, "hasFile:", !!req.file);
     if (req.file) {
       console.log("[Customer POST] uploading file:", req.file.originalname, req.file.size);
-      logoUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+      const logoFolderId = await getOrCreateSubfolder("Customer logo");
+      logoUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname, logoFolderId);
       console.log("[Customer POST] uploaded URL:", logoUrl);
     }
 
