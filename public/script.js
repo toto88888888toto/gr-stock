@@ -252,26 +252,54 @@ function resetCustomerForm() {
 }
 
 function renderCustomers() {
-  if (!customerListEl) return;
-  customerListEl.innerHTML = allCustomers.map(c => {
-    const initial = escapeHtml(c.name.charAt(0).toUpperCase());
-    const id = escapeHtml(c.id);
-    const name = escapeHtml(c.name);
-    const logo = escapeHtml(c.logoUrl || '');
-    return `<div class="customer-logo-chip">
-      <div class="chip-inner">
-        <img src="${logo}" alt="${name}"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-          style="${c.logoUrl ? '' : 'display:none'}">
-        <div class="cust-no-logo" style="${c.logoUrl ? 'display:none' : ''}">${initial}</div>
-      </div>
-      <div class="chip-tooltip">${name}</div>
-      <div class="chip-actions">
-        <button class="chip-btn chip-edit" onclick="startEditCustomer('${id}')" title="Edit">✎</button>
-        <button class="chip-btn chip-del" onclick="deleteCustomer('${id}')" title="Delete">✕</button>
-      </div>
-    </div>`;
-  }).join("");
+  // Render chips inside customer modal
+  if (customerListEl) {
+    customerListEl.innerHTML = allCustomers.map(c => {
+      const initial = escapeHtml(c.name.charAt(0).toUpperCase());
+      const id = escapeHtml(c.id);
+      const name = escapeHtml(c.name);
+      const logo = escapeHtml(c.logoUrl || '');
+      return `<div class="customer-logo-chip">
+        <div class="chip-inner">
+          <img src="${logo}" alt="${name}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            style="${c.logoUrl ? '' : 'display:none'}">
+          <div class="cust-no-logo" style="${c.logoUrl ? 'display:none' : ''}">${initial}</div>
+        </div>
+        <div class="chip-tooltip">${name}</div>
+        <div class="chip-actions">
+          <button class="chip-btn chip-edit" onclick="startEditCustomer('${id}')" title="Edit">✎</button>
+          <button class="chip-btn chip-del" onclick="deleteCustomer('${id}')" title="Delete">✕</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // Render scrolling ticker (duplicated for seamless loop)
+  const ticker = document.getElementById("tickerTrack");
+  if (ticker && allCustomers.length > 0) {
+    const chipHtml = allCustomers.map(c => {
+      const name = escapeHtml(c.name);
+      const logo = escapeHtml(c.logoUrl || '');
+      const initial = escapeHtml(c.name.charAt(0).toUpperCase());
+      return `<div class="ticker-chip">
+        <div class="ticker-chip-logo">
+          <img src="${logo}" alt="${name}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            style="${c.logoUrl ? '' : 'display:none'}">
+          <div class="ticker-chip-initial" style="${c.logoUrl ? 'display:none' : ''}">${initial}</div>
+        </div>
+        <span class="ticker-chip-name">${name}</span>
+      </div>`;
+    }).join("");
+    // Duplicate for seamless infinite scroll
+    ticker.innerHTML = chipHtml + chipHtml;
+    // Adjust speed based on count
+    const speed = Math.max(12, allCustomers.length * 5);
+    ticker.style.animationDuration = speed + 's';
+  } else if (ticker) {
+    ticker.innerHTML = '';
+  }
 }
 
 
