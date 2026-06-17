@@ -236,10 +236,8 @@ function renderCustomers() {
   customerListEl.innerHTML = allCustomers.map(c => `
     <div class="customer-item">
       <div class="customer-item-logo">
-        ${c.logoUrl
-          ? `<img src="${escapeHtml(c.logoUrl)}" alt="${escapeHtml(c.name)}" onerror="this.outerHTML='<div class=\\"cust-no-logo\\">${escapeHtml(c.name.charAt(0))}</div>'">`
-          : `<div class="cust-no-logo">${escapeHtml(c.name.charAt(0).toUpperCase())}</div>`
-        }
+          <img src="${escapeHtml(c.logoUrl || '')}" alt="${escapeHtml(c.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="${c.logoUrl ? '' : 'display:none'}">
+          <div class="cust-no-logo" style="${c.logoUrl ? 'display:none' : ''}">${escapeHtml(c.name.charAt(0).toUpperCase())}</div>
       </div>
       <span class="customer-item-name">${escapeHtml(c.name)}</span>
       <div class="customer-item-actions">
