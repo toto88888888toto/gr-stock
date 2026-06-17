@@ -869,4 +869,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     categoryHistory = uniqueCI([typed, ...categoryHistory]);
   });
 
+  // Logout
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await fetch("/api/logout", { method: "POST" });
+      window.location.replace("/login.html");
+    });
+  }
+
 });

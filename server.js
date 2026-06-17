@@ -1,4 +1,5 @@
 const express = require("express");
+const session = require("express-session");
 const cors = require("cors");
 const multer = require("multer");
 const { google } = require("googleapis");
@@ -9,6 +10,30 @@ const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ── Auth config ────────────────────────────────────────────────
+const APP_USER = process.env.APP_USER || "Bin";
+const APP_PASS = process.env.APP_PASS || "123456";
+const SESSION_SECRET = process.env.SESSION_SECRET || "gr-stock-secret-2024";
+
+app.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 days
+}));
+
+// Auth middleware — protects all routes except login & static assets
+function requireAuth(req, res, next) {
+  const pub = ["/api/login", "/api/me", "/login.html", "/login"];
+  const isPublic = pub.some(p => req.path === p) ||
+    req.path.match(/\.(css|js|png|jpg|ico|woff2?)$/);
+  if (isPublic) return next();
+  if (req.session && req.session.loggedIn) return next();
+  if (req.path.startsWith("/api/")) return res.status(401).json({ success: false, message: "Unauthorized" });
+  return res.redirect("/login.html");
+}
+app.use(requireAuth);
 
 // ── Google Sheets config (service account) ────────────────────
 const CREDENTIALS = JSON.parse(process.env.GOOGLE_CREDENTIALS || process.env.GOOGLE_SERVICE_ACCOUNT);
@@ -634,6 +659,25 @@ app.delete("/api/customers/:id", async (req, res) => {
   }
 });
 
+
+// ── Auth routes ────────────────────────────────────────────────
+app.post("/api/login", express.json(), (req, res) => {
+  const { username, password } = req.body || {};
+  if (username === APP_USER && password === APP_PASS) {
+    req.session.loggedIn = true;
+    req.session.username = username;
+    return res.json({ success: true });
+  }
+  return res.status(401).json({ success: false, message: "Invalid credentials" });
+});
+
+app.get("/api/me", (req, res) => {
+  res.json({ loggedIn: !!(req.session && req.session.loggedIn), username: req.session && req.session.username });
+});
+
+app.post("/api/logout", (req, res) => {
+  req.session.destroy(() => res.json({ success: true }));
+});
 
 // ── OAuth flow to generate refresh token ───────────────────────
 const RAILWAY_REDIRECT = "https://gr-stock-production-83a5.up.railway.app/oauth-callback";

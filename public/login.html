@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GR Stock — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+      overflow: hidden;
+    }
+
+    /* floating background blobs */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: #6c63ff;
+      top: -120px; left: -120px;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: #e040fb;
+      bottom: -100px; right: -100px;
+    }
+
+    .login-card {
+      box-sizing: border-box;
+      width: 360px;
+      background: rgba(217, 217, 217, 0.12);
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 17px;
+      padding: 40px 36px;
+      color: #fff;
+      transition: all 0.5s;
+      position: relative;
+      z-index: 1;
+    }
+    .login-card:hover {
+      border: 1px solid rgba(255,255,255,0.7);
+      transform: scale(1.01);
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .login-logo img { width: 44px; height: 44px; object-fit: contain; }
+    .login-logo h1 { font-size: 20px; font-weight: 800; color: #fff; }
+    .login-logo p { font-size: 12px; color: rgba(255,255,255,0.55); }
+
+    h2 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 24px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #fff;
+      outline: none;
+      transition: border-color .2s, background .2s;
+      margin-bottom: 14px;
+    }
+    input::placeholder { color: rgba(255,255,255,0.3); }
+    input:focus {
+      border-color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.15);
+    }
+
+    .btn-login {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 13px;
+      background: rgba(108, 99, 255, 0.85);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+      transition: all 0.5s;
+      user-select: none;
+    }
+    .btn-login:hover {
+      border: 1px solid #fff;
+      transform: scale(1.05);
+      background: rgba(108, 99, 255, 1);
+    }
+    .btn-login:active {
+      transform: scale(0.95) rotateZ(1.7deg);
+    }
+
+    .error {
+      background: rgba(239,68,68,0.2);
+      border: 1px solid rgba(239,68,68,0.5);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .error.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="images/Logo.png" alt="GR Stock" />
+      <div>
+        <h1>GR Stock</h1>
+        <p>Google Drive version</p>
+      </div>
+    </div>
+
+    <h2>Welcome back</h2>
+    <p class="sub">Sign in to continue</p>
+
+    <div class="error" id="errorMsg">Incorrect username or password.</div>
+
+    <form id="loginForm">
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="Enter username" autocomplete="username" required />
+
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Enter password" autocomplete="current-password" required />
+
+      <button class="btn-login" type="submit">Sign In</button>
+    </form>
+  </div>
+
+  <script>
+    fetch("/api/me").then(r => r.json()).then(d => {
+      if (d.loggedIn) window.location.replace("/");
+    }).catch(() => {});
+
+    document.getElementById("loginForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      const err = document.getElementById("errorMsg");
+      err.classList.remove("show");
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.success) { window.location.replace("/"); }
+        else { err.classList.add("show"); }
+      } catch { err.classList.add("show"); }
+    });
+  </script>
+</body>
+</html>

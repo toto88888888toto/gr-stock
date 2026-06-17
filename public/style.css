@@ -58,6 +58,21 @@ body{
   border-bottom:1px solid var(--border);
 }
 
+
+.btn-logout{
+  padding:8px 18px;
+  background:transparent;
+  border:1.5px solid rgba(255,255,255,0.5);
+  border-radius:8px;
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  transition:background .15s, border-color .15s;
+  white-space:nowrap;
+}
+.btn-logout:hover{ background:rgba(255,255,255,0.15); border-color:#fff; }
 .topbar-inner{
   height:68px;
   display:flex;
