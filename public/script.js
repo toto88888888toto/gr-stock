@@ -358,10 +358,9 @@ customerForm.addEventListener("submit", async e => {
   }
 });
 
-cancelCustomerBtn.addEventListener("click", resetCustomerForm);
-addCustomerBtn.addEventListener("click", () => {
+if (cancelCustomerBtn) cancelCustomerBtn.addEventListener("click", closeCustomerModal);
+if (addCustomerBtn) addCustomerBtn.addEventListener("click", () => {
   resetCustomerForm();
-  customerForm.classList.remove("hidden");
   customerNameInput.focus();
 });
 
@@ -870,13 +869,40 @@ function closeProductForm() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
-  // Toggle button wiring
+  // Product modal FAB
   const toggleBtn = document.getElementById("toggleProductFormBtn");
-  if (toggleBtn) toggleBtn.addEventListener("click", () => {
-    const body = document.getElementById("productFormBody");
-    if (body && body.classList.contains("collapsed")) openProductForm();
-    else closeProductForm();
-  });
+  const productModal = document.getElementById("productModal");
+  const productModalBackdrop = document.getElementById("productModalBackdrop");
+  const productModalCloseBtn = document.getElementById("productModalCloseBtn");
+
+  function openProductModal() {
+    if (productModal) productModal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+  function closeProductModal() {
+    if (productModal) productModal.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+  if (toggleBtn) toggleBtn.addEventListener("click", openProductModal);
+  if (productModalBackdrop) productModalBackdrop.addEventListener("click", closeProductModal);
+  if (productModalCloseBtn) productModalCloseBtn.addEventListener("click", () => { closeProductModal(); resetForm(); });
+
+  // Customer modal FAB
+  const openCustomerModalBtn = document.getElementById("openCustomerModalBtn");
+  const customerModal = document.getElementById("customerModal");
+  const customerModalBackdrop = document.getElementById("customerModalBackdrop");
+
+  function openCustomerModal() {
+    if (customerModal) customerModal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+  function closeCustomerModal() {
+    if (customerModal) customerModal.classList.add("hidden");
+    document.body.style.overflow = "";
+    resetCustomerForm();
+  }
+  if (openCustomerModalBtn) openCustomerModalBtn.addEventListener("click", openCustomerModal);
+  if (customerModalBackdrop) customerModalBackdrop.addEventListener("click", closeCustomerModal);
   resetForm();
   const pageLoader = document.getElementById("pageLoader");
   try {
