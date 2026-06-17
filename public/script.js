@@ -1,4 +1,28 @@
 const productForm = document.getElementById("productForm");
+
+/* ─── THEME (light / dark) ───────────────────────────────── */
+(function(){
+  const saved = localStorage.getItem("gr-theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+})();
+
+function initTheme() {
+  const btn = document.getElementById("themeBtn");
+  if (!btn) return;
+  const update = () => {
+    const dark = document.documentElement.getAttribute("data-theme") === "dark";
+    btn.textContent = dark ? "☀️" : "🌙";
+    btn.title = dark ? "Switch to light mode" : "Switch to dark mode";
+  };
+  update();
+  btn.addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("gr-theme", next);
+    update();
+  });
+}
+
 const editingIdInput = document.getElementById("editingId");
 
 const categorySuggestions = document.getElementById("categorySuggestions");
@@ -868,6 +892,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   wireAutocomplete(category, categorySuggestions, getCategorySuggestionList, typed => {
     categoryHistory = uniqueCI([typed, ...categoryHistory]);
   });
+
+  // Theme toggle
+  initTheme();
 
   // Logout
   const logoutBtn = document.getElementById("logoutBtn");

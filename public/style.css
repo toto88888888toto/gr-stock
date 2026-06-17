@@ -25,6 +25,37 @@
   --radius-lg:22px;
   --radius-xl:28px;
   --max:1240px;
+  --input-bg:#ffffff;
+  --select-bg:#ffffff;
+  --modal-bg:#ffffff;
+  --card-photo-bg:#f6f7fb;
+}
+
+/* ─── DARK MODE ───────────────────────────────────────────── */
+[data-theme="dark"]{
+  --bg:#0f1117;
+  --surface:#1a1d27;
+  --surface-2:#22263a;
+  --border:#2d3248;
+  --border-2:#3a4060;
+  --text:#f1f3f9;
+  --text-2:#a0aec0;
+  --muted:#5a6480;
+  --accent:#7c6ff7;
+  --accent-2:#6c63ff;
+  --accent-light:#1e1d3a;
+  --accent-mid:#3d3b7a;
+  --danger:#f87171;
+  --danger-light:#2d1515;
+  --success:#34d399;
+  --shadow-xs:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
+  --shadow-sm:0 4px 12px rgba(0,0,0,.3);
+  --shadow-md:0 8px 24px rgba(0,0,0,.4);
+  --shadow-lg:0 16px 40px rgba(0,0,0,.5);
+  --input-bg:#22263a;
+  --select-bg:#22263a;
+  --modal-bg:#1a1d27;
+  --card-photo-bg:#22263a;
 }
 
 /* ─── RESET ──────────────────────────────────────────────── */
@@ -1023,4 +1054,50 @@ small{ color:var(--muted); font-size:12px; }
 .btn-fab:active{
   transform:scale(0.97);
   box-shadow:0 2px 8px rgba(79,70,229,0.3);
+}
+
+/* ─── DARK MODE OVERRIDES ─────────────────────────────────── */
+input, textarea, select{
+  background: var(--input-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+input::placeholder, textarea::placeholder{ color: var(--muted); }
+
+.card{ background:var(--surface); border-color:var(--border); }
+.modal-box{ background:var(--modal-bg); }
+.modal-backdrop{ background:rgba(0,0,0,0.6); }
+
+.product-card{ background:var(--surface); border-color:var(--border); }
+.product-card-photo{ background:var(--card-photo-bg); }
+
+.suggestions{ background:var(--surface); border-color:var(--border); }
+.suggestion-item:hover{ background:var(--surface-2); }
+
+.toolbar-grid .field select,
+.toolbar-grid .field input{
+  background:var(--surface);
+  border-color:var(--border);
+  color:var(--text);
+}
+
+/* theme toggle button */
+.btn-theme{
+  width:36px; height:36px;
+  border-radius:50%;
+  border:1.5px solid rgba(255,255,255,0.35);
+  background:rgba(255,255,255,0.1);
+  color:#fff;
+  font-size:17px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .2s, border-color .2s, transform .2s;
+  flex-shrink:0;
+}
+.btn-theme:hover{
+  background:rgba(255,255,255,0.2);
+  border-color:#fff;
+  transform:rotate(20deg);
 }

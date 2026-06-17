@@ -13,6 +13,13 @@
   />
 
   <link rel="stylesheet" href="style.css" />
+  <script>
+    // Apply saved theme before paint to avoid flash
+    (function(){
+      const t = localStorage.getItem("gr-theme") || "light";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
 </head>
 <body>
 
@@ -33,7 +40,10 @@
           <p class="brand-sub">Google Drive version</p>
         </div>
       </div>
-      <button id="logoutBtn" class="btn-logout" type="button">Sign Out</button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button id="themeBtn" class="btn-theme" type="button" title="Toggle dark/light mode">🌙</button>
+        <button id="logoutBtn" class="btn-logout" type="button">Sign Out</button>
+      </div>
     </div>
   </header>
 
