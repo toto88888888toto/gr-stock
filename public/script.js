@@ -862,8 +862,16 @@ window.addEventListener("DOMContentLoaded", async () => {
     else closeProductForm();
   });
   resetForm();
-  await loadCustomers();
-  await loadProducts();
+  const pageLoader = document.getElementById("pageLoader");
+  try {
+    await loadCustomers();
+    await loadProducts();
+  } finally {
+    if (pageLoader) {
+      pageLoader.classList.add("hidden");
+      setTimeout(() => pageLoader.remove(), 400);
+    }
+  }
 
   wireAutocomplete(category, categorySuggestions, getCategorySuggestionList, typed => {
     categoryHistory = uniqueCI([typed, ...categoryHistory]);
