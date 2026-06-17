@@ -60,7 +60,7 @@ async function getOrCreateSubfolder(name) {
 // ── Multer (memory storage — no local files) ───────────────────
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { files: 20, fileSize: 10 * 1024 * 1024 }
+  limits: { files: 20, fileSize: 50 * 1024 * 1024 }
 });
 
 app.use(cors());
