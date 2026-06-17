@@ -656,17 +656,144 @@ small{ color:var(--muted); font-size:12px; }
 .suggestions::-webkit-scrollbar-track,.modal-box::-webkit-scrollbar-track{ background:transparent; }
 
 /* ─── CUSTOMER MANAGEMENT ────────────────────────────────── */
+/* ─── CUSTOMER BAR (compact logo row) ────────────────────── */
+.customer-section{ padding:14px 20px; }
+
+.customer-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.customer-logo-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  flex:1;
+}
+
+.customer-logo-chip{
+  position:relative;
+  width:56px; height:56px;
+  border-radius:var(--radius-sm);
+  overflow:visible;
+  cursor:pointer;
+  flex-shrink:0;
+}
+
+.customer-logo-chip .chip-inner{
+  width:56px; height:56px;
+  border-radius:var(--radius-sm);
+  border:2px solid var(--border);
+  background:var(--surface);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  transition:border-color .15s, box-shadow .15s;
+}
+
+.customer-logo-chip:hover .chip-inner{
+  border-color:var(--accent-mid);
+  box-shadow:0 0 0 3px var(--accent-light);
+}
+
+.customer-logo-chip img{
+  width:100%; height:100%;
+  object-fit:contain;
+  padding:4px;
+}
+
+.cust-no-logo{
+  width:100%; height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  font-weight:800;
+  color:var(--accent);
+  background:var(--accent-light);
+}
+
+.chip-tooltip{
+  position:absolute;
+  bottom:calc(100% + 6px);
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--text);
+  color:#fff;
+  font-size:11px;
+  font-weight:600;
+  padding:3px 8px;
+  border-radius:4px;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+  z-index:10;
+}
+.customer-logo-chip:hover .chip-tooltip{ opacity:1; }
+
+.chip-actions{
+  position:absolute;
+  top:-6px; right:-6px;
+  display:flex;
+  gap:3px;
+  opacity:0;
+  transition:opacity .15s;
+  pointer-events:none;
+}
+.customer-logo-chip:hover .chip-actions{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.chip-btn{
+  width:20px; height:20px;
+  border-radius:50%;
+  border:none;
+  font-size:10px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  line-height:1;
+}
+.chip-edit{ background:var(--accent); color:#fff; }
+.chip-del{ background:#ef4444; color:#fff; }
+
+.btn-add-customer{
+  width:56px; height:56px;
+  border-radius:var(--radius-sm);
+  border:2px dashed var(--border);
+  background:var(--surface);
+  font-size:26px;
+  color:var(--muted);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:border-color .15s, color .15s;
+  flex-shrink:0;
+}
+.btn-add-customer:hover{ border-color:var(--accent); color:var(--accent); }
+
+/* customer inline form */
 .customer-form{
   display:grid;
   grid-template-columns:1fr 1fr auto;
   gap:12px 14px;
   align-items:end;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--border);
 }
-
+.customer-form.hidden{ display:none; }
 .customer-form .actions{ margin-top:0; flex-wrap:nowrap; }
-
 .customer-logo-preview{ margin-top:8px; }
-
 .current-logo-preview{
   width:52px; height:52px;
   object-fit:contain;
@@ -676,60 +803,23 @@ small{ color:var(--muted); font-size:12px; }
   padding:4px;
 }
 
-.customer-list{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.customer-empty{ color:var(--muted); font-size:14px; padding:10px 0; }
-
-.customer-item{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:12px 14px;
-  border:1px solid var(--border);
-  border-radius:var(--radius-sm);
-  background:var(--bg);
-  transition:border-color .15s;
-}
-
-.customer-item:hover{ border-color:var(--accent-mid); }
-
-.customer-item-logo{
-  width:44px; height:44px;
-  border-radius:var(--radius-xs);
-  overflow:hidden;
-  flex-shrink:0;
-  border:1px solid var(--border);
+/* toggle button on Add Product header */
+.btn-toggle-form{
+  width:36px; height:36px;
+  border-radius:50%;
+  border:2px solid var(--border);
   background:var(--surface);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.customer-item-logo img{ width:100%; height:100%; object-fit:contain; }
-
-.cust-no-logo{
-  width:100%; height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:18px;
-  font-weight:800;
+  font-size:22px;
+  line-height:1;
   color:var(--accent);
-  background:var(--accent-light);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .15s, border-color .15s;
+  flex-shrink:0;
 }
-
-.customer-item-name{
-  flex:1;
-  font-weight:600;
-  font-size:14px;
-  color:var(--text);
-}
-
-.customer-item-actions{ display:flex; gap:8px; }
+.btn-toggle-form:hover{ background:var(--accent-light); border-color:var(--accent); }
 
 /* ─── COLLAPSIBLE FORM ───────────────────────────────────── */
 .collapsible-head{

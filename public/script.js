@@ -66,6 +66,7 @@ const customerLogoPreview = document.getElementById("customerLogoPreview");
 const saveCustomerBtn = document.getElementById("saveCustomerBtn");
 const cancelCustomerBtn = document.getElementById("cancelCustomerBtn");
 const customerListEl = document.getElementById("customerList");
+const addCustomerBtn = document.getElementById("addCustomerBtn");
 
 let allProducts = [];
 let allCustomers = [];
@@ -222,28 +223,31 @@ function resetCustomerForm() {
   editingCustomerId = null;
   editingCustomerIdInput.value = "";
   customerLogoPreview.innerHTML = "";
-  saveCustomerBtn.textContent = "Add Customer";
+  saveCustomerBtn.textContent = "Save";
+  customerForm.classList.add("hidden");
 }
 
 function renderCustomers() {
   if (!customerListEl) return;
-  if (!allCustomers.length) {
-    customerListEl.innerHTML = `<div class="customer-empty">No customers yet. Add one above.</div>`;
-    return;
-  }
-  customerListEl.innerHTML = allCustomers.map(c => `
-    <div class="customer-item">
-      <div class="customer-item-logo">
-          <img src="${escapeHtml(c.logoUrl || '')}" alt="${escapeHtml(c.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="${c.logoUrl ? '' : 'display:none'}">
-          <div class="cust-no-logo" style="${c.logoUrl ? 'display:none' : ''}">${escapeHtml(c.name.charAt(0).toUpperCase())}</div>
+  customerListEl.innerHTML = allCustomers.map(c => {
+    const initial = escapeHtml(c.name.charAt(0).toUpperCase());
+    const id = escapeHtml(c.id);
+    const name = escapeHtml(c.name);
+    const logo = escapeHtml(c.logoUrl || '');
+    return `<div class="customer-logo-chip">
+      <div class="chip-inner">
+        <img src="${logo}" alt="${name}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+          style="${c.logoUrl ? '' : 'display:none'}">
+        <div class="cust-no-logo" style="${c.logoUrl ? 'display:none' : ''}">${initial}</div>
       </div>
-      <span class="customer-item-name">${escapeHtml(c.name)}</span>
-      <div class="customer-item-actions">
-        <button class="btn btn-secondary btn-sm" onclick="startEditCustomer('${escapeHtml(c.id)}')">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${escapeHtml(c.id)}')">Delete</button>
+      <div class="chip-tooltip">${name}</div>
+      <div class="chip-actions">
+        <button class="chip-btn chip-edit" onclick="startEditCustomer('${id}')" title="Edit">✎</button>
+        <button class="chip-btn chip-del" onclick="deleteCustomer('${id}')" title="Delete">✕</button>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 }
 
 
@@ -279,7 +283,8 @@ function startEditCustomer(id) {
   customerLogoPreview.innerHTML = c.logoUrl
     ? `<img src="${escapeHtml(c.logoUrl)}" alt="current logo" class="current-logo-preview" />`
     : "";
-  saveCustomerBtn.textContent = "Update Customer";
+  saveCustomerBtn.textContent = "Update";
+  customerForm.classList.remove("hidden");
   customerNameInput.scrollIntoView({ behavior: "smooth", block: "center" });
   customerNameInput.focus();
 }
@@ -330,6 +335,11 @@ customerForm.addEventListener("submit", async e => {
 });
 
 cancelCustomerBtn.addEventListener("click", resetCustomerForm);
+addCustomerBtn.addEventListener("click", () => {
+  resetCustomerForm();
+  customerForm.classList.remove("hidden");
+  customerNameInput.focus();
+});
 
 customerLogoInput.addEventListener("change", () => {
   const file = customerLogoInput.files[0];
