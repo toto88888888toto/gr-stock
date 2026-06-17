@@ -230,7 +230,7 @@ async function uploadToCloudinary(buffer, filename, folderId = DRIVE_FOLDER_ID) 
     fileId: file.data.id,
     requestBody: { role: "reader", type: "anyone" }
   });
-  return `https://drive.google.com/uc?id=${file.data.id}`;
+  return `https://lh3.googleusercontent.com/d/${file.data.id}`;
 }
 
 async function deleteFromCloudinary(url) {
