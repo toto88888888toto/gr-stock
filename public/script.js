@@ -252,54 +252,26 @@ function resetCustomerForm() {
 }
 
 function renderCustomers() {
-  // Render chips inside customer modal
-  if (customerListEl) {
-    customerListEl.innerHTML = allCustomers.map(c => {
-      const initial = escapeHtml(c.name.charAt(0).toUpperCase());
-      const id = escapeHtml(c.id);
-      const name = escapeHtml(c.name);
-      const logo = escapeHtml(c.logoUrl || '');
-      return `<div class="customer-logo-chip">
-        <div class="chip-inner">
-          <img src="${logo}" alt="${name}"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-            style="${c.logoUrl ? '' : 'display:none'}">
-          <div class="cust-no-logo" style="${c.logoUrl ? 'display:none' : ''}">${initial}</div>
-        </div>
-        <div class="chip-tooltip">${name}</div>
-        <div class="chip-actions">
-          <button class="chip-btn chip-edit" onclick="startEditCustomer('${id}')" title="Edit">✎</button>
-          <button class="chip-btn chip-del" onclick="deleteCustomer('${id}')" title="Delete">✕</button>
-        </div>
-      </div>`;
-    }).join("");
-  }
-
-  // Render scrolling ticker (duplicated for seamless loop)
-  const ticker = document.getElementById("tickerTrack");
-  if (ticker && allCustomers.length > 0) {
-    const chipHtml = allCustomers.map(c => {
-      const name = escapeHtml(c.name);
-      const logo = escapeHtml(c.logoUrl || '');
-      const initial = escapeHtml(c.name.charAt(0).toUpperCase());
-      return `<div class="ticker-chip">
-        <div class="ticker-chip-logo">
-          <img src="${logo}" alt="${name}"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-            style="${c.logoUrl ? '' : 'display:none'}">
-          <div class="ticker-chip-initial" style="${c.logoUrl ? 'display:none' : ''}">${initial}</div>
-        </div>
-        <span class="ticker-chip-name">${name}</span>
-      </div>`;
-    }).join("");
-    // Duplicate for seamless infinite scroll
-    ticker.innerHTML = chipHtml + chipHtml;
-    // Adjust speed based on count
-    const speed = Math.max(12, allCustomers.length * 5);
-    ticker.style.animationDuration = speed + 's';
-  } else if (ticker) {
-    ticker.innerHTML = '';
-  }
+  if (!customerListEl) return;
+  customerListEl.innerHTML = allCustomers.map(c => {
+    const initial = escapeHtml(c.name.charAt(0).toUpperCase());
+    const id = escapeHtml(c.id);
+    const name = escapeHtml(c.name);
+    const logo = escapeHtml(c.logoUrl || '');
+    return `<div class="customer-logo-chip">
+      <div class="chip-inner">
+        <img src="${logo}" alt="${name}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+          style="${c.logoUrl ? '' : 'display:none'}">
+        <div class="cust-no-logo" style="${c.logoUrl ? 'display:none' : ''}">${initial}</div>
+      </div>
+      <div class="chip-tooltip">${name}</div>
+      <div class="chip-actions">
+        <button class="chip-btn chip-edit" onclick="startEditCustomer('${id}')" title="Edit">✎</button>
+        <button class="chip-btn chip-del" onclick="deleteCustomer('${id}')" title="Delete">✕</button>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 
@@ -386,9 +358,10 @@ customerForm.addEventListener("submit", async e => {
   }
 });
 
-if (cancelCustomerBtn) cancelCustomerBtn.addEventListener("click", closeCustomerModal);
-if (addCustomerBtn) addCustomerBtn.addEventListener("click", () => {
+cancelCustomerBtn.addEventListener("click", resetCustomerForm);
+addCustomerBtn.addEventListener("click", () => {
   resetCustomerForm();
+  customerForm.classList.remove("hidden");
   customerNameInput.focus();
 });
 
@@ -897,42 +870,14 @@ function closeProductForm() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
-  // Product modal FAB
+  // Toggle button wiring
   const toggleBtn = document.getElementById("toggleProductFormBtn");
-  const productModal = document.getElementById("productModal");
-  const productModalBackdrop = document.getElementById("productModalBackdrop");
-  const productModalCloseBtn = document.getElementById("productModalCloseBtn");
-
-  function openProductModal() {
-    if (productModal) productModal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  }
-  function closeProductModal() {
-    if (productModal) productModal.classList.add("hidden");
-    document.body.style.overflow = "";
-  }
-  if (toggleBtn) toggleBtn.addEventListener("click", openProductModal);
-  if (productModalBackdrop) productModalBackdrop.addEventListener("click", closeProductModal);
-  if (productModalCloseBtn) productModalCloseBtn.addEventListener("click", () => { closeProductModal(); resetForm(); });
-
-  // Customer modal FAB
-  const openCustomerModalBtn = document.getElementById("openCustomerModalBtn");
-  const customerModal = document.getElementById("customerModal");
-  const customerModalBackdrop = document.getElementById("customerModalBackdrop");
-
-  function openCustomerModal() {
-    if (customerModal) customerModal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  }
-  function closeCustomerModal() {
-    if (customerModal) customerModal.classList.add("hidden");
-    document.body.style.overflow = "";
-    resetCustomerForm();
-  }
-  if (openCustomerModalBtn) openCustomerModalBtn.addEventListener("click", openCustomerModal);
-  if (customerModalBackdrop) customerModalBackdrop.addEventListener("click", closeCustomerModal);
+  if (toggleBtn) toggleBtn.addEventListener("click", () => {
+    const body = document.getElementById("productFormBody");
+    if (body && body.classList.contains("collapsed")) openProductForm();
+    else closeProductForm();
+  });
   resetForm();
-  // Load data
   await loadCustomers();
   await loadProducts();
 
