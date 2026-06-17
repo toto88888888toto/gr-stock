@@ -41,9 +41,15 @@
 
     <!-- CUSTOMERS -->
     <section class="card customer-section">
-      <div class="customer-bar">
-        <div id="customerList" class="customer-logo-bar"></div>
-        <button id="addCustomerBtn" class="btn-add-customer" type="button" title="Add Customer">+</button>
+      <div class="section-row-head">
+        <div>
+          <h2 class="section-title">Customers</h2>
+          <p class="section-sub">Logos appear on each product card</p>
+        </div>
+      </div>
+      <div id="customerList" class="customer-logo-bar"></div>
+      <div class="section-footer-right">
+        <button id="addCustomerBtn" class="btn-fab" type="button" title="Add Customer">+ Add Customer</button>
       </div>
 
       <!-- inline form (hidden by default) -->
@@ -67,12 +73,11 @@
 
     <!-- ADD PRODUCT -->
     <section class="card">
-      <div class="section-head collapsible-head" id="productFormToggle">
+      <div class="section-row-head">
         <div>
-          <h2>Add Product</h2>
+          <h2 class="section-title">Add Product</h2>
           <p class="section-sub">Products and images are saved to Google Drive</p>
         </div>
-        <button class="btn-toggle-form" type="button" id="toggleProductFormBtn">+</button>
       </div>
 
       <div id="productFormBody" class="collapsible-body collapsed">
@@ -181,6 +186,9 @@
 
       </form>
       </div><!-- /collapsible-body -->
+      <div class="section-footer-right">
+        <button class="btn-fab" id="toggleProductFormBtn" type="button">+ Add Product</button>
+      </div>
     </section>
 
     <!-- SEARCH -->
@@ -255,7 +263,7 @@
     <section class="card">
       <div class="section-head">
         <h2>Product List</h2>
-        <p class="section-sub">Items saved in local Excel file</p>
+        <p class="section-sub">All items saved to Google Drive & Sheets</p>
       </div>
 
       <div id="productList" class="product-list">

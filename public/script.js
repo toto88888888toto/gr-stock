@@ -847,16 +847,8 @@ function closeProductForm() {
 
 window.addEventListener("DOMContentLoaded", async () => {
   // Toggle button wiring
-  const toggleBtn = document.getElementById("productFormCollapseBtn");
-  const toggleHead = document.getElementById("productFormToggle");
-  if (toggleBtn) toggleBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const body = document.getElementById("productFormBody");
-    if (body && body.classList.contains("collapsed")) openProductForm();
-    else closeProductForm();
-  });
-  if (toggleHead) toggleHead.addEventListener("click", (e) => {
-    if (e.target.closest("button")) return;
+  const toggleBtn = document.getElementById("toggleProductFormBtn");
+  if (toggleBtn) toggleBtn.addEventListener("click", () => {
     const body = document.getElementById("productFormBody");
     if (body && body.classList.contains("collapsed")) openProductForm();
     else closeProductForm();
