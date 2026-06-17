@@ -264,9 +264,10 @@ app.post("/api/items", upload.array("photos", 20), async (req, res) => {
   try {
     const existingItems = await getAllItems();
 
+    const photoFolderId = await getOrCreateSubfolder("Product photos");
     const photoPaths = [];
     for (const file of (req.files || [])) {
-      const url = await uploadToCloudinary(file.buffer, file.originalname);
+      const url = await uploadToCloudinary(file.buffer, file.originalname, photoFolderId);
       photoPaths.push(url);
     }
 
@@ -344,9 +345,10 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
     }
 
     const keptPhotos = parsePhotos(req.body.existingPhotos);
+    const photoFolderId = await getOrCreateSubfolder("Product photos");
     const newPhotoPaths = [];
     for (const file of (req.files || [])) {
-      const url = await uploadToCloudinary(file.buffer, file.originalname);
+      const url = await uploadToCloudinary(file.buffer, file.originalname, photoFolderId);
       newPhotoPaths.push(url);
     }
     const finalPhotos = uniqueArray([...keptPhotos, ...newPhotoPaths]);
@@ -555,7 +557,8 @@ app.put("/api/customers/:id", upload.single("logo"), async (req, res) => {
 
     let logoUrl = oldLogoUrl;
     if (req.file) {
-      logoUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+      const logoFolderId = await getOrCreateSubfolder("Customer logo");
+      logoUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname, logoFolderId);
       if (oldLogoUrl) await deleteFromCloudinary(oldLogoUrl);
     } else if (req.body.removeLogo === "true") {
       if (oldLogoUrl) await deleteFromCloudinary(oldLogoUrl);
