@@ -24,7 +24,7 @@
   --radius:16px;
   --radius-lg:22px;
   --radius-xl:28px;
-  --max:1240px;
+  --max:1440px;
   --input-bg:#ffffff;
   --select-bg:#ffffff;
   --modal-bg:#ffffff;
@@ -74,7 +74,7 @@ body{
 }
 
 .container{
-  width:min(calc(100% - 40px), var(--max));
+  width:min(calc(100% - 48px), var(--max));
   margin:0 auto;
 }
 
@@ -149,7 +149,7 @@ body{
 }
 
 /* ─── PAGE ───────────────────────────────────────────────── */
-.page{ padding:24px 0 48px; }
+.page{ padding:20px 0 40px; }
 
 /* ─── CARD / SECTION ─────────────────────────────────────── */
 .card{
