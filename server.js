@@ -505,13 +505,16 @@ app.post("/api/customers", upload.single("logo"), async (req, res) => {
 
     const customer = { id: uuidv4(), name, logoUrl };
 
+    console.log("[Sheet] ensureCustomerSheet...");
     await ensureCustomerSheet();
-    await sheets.spreadsheets.values.append({
+    console.log("[Sheet] appending customer row to SHEET_ID:", SHEET_ID, "range:", CUSTOMER_SHEET_NAME);
+    const appendRes = await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
       range: `${CUSTOMER_SHEET_NAME}!A:C`,
       valueInputOption: "RAW",
       requestBody: { values: [[customer.id, customer.name, customer.logoUrl]] }
     });
+    console.log("[Sheet] append done, updatedRange:", appendRes.data.updates && appendRes.data.updates.updatedRange);
 
     return res.json({ success: true, customer });
   } catch (error) {
@@ -660,6 +663,32 @@ app.get("/oauth-callback", async (req, res) => {
 <p>Then redeploy on Railway and test again.</p>`);
   } catch (e) {
     res.send("Error: " + e.message);
+  }
+});
+
+// ── SHEET DIAGNOSTIC ──────────────────────────────────────────
+app.get("/api/sheet-test", async (req, res) => {
+  try {
+    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+    const sheetTitles = spreadsheet.data.sheets.map(s => s.properties.title);
+    const clientsRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${CUSTOMER_SHEET_NAME}!A:C`
+    });
+    const itemsRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_NAME}!A:M`
+    });
+    res.json({
+      ok: true,
+      sheetId: SHEET_ID,
+      tabs: sheetTitles,
+      clientsRows: (clientsRes.data.values || []).length,
+      itemsRows: (itemsRes.data.values || []).length,
+      clientsSample: (clientsRes.data.values || []).slice(0, 3)
+    });
+  } catch (err) {
+    res.json({ ok: false, error: err.message, code: err.code });
   }
 });
 
