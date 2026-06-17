@@ -2,10 +2,8 @@ const productForm = document.getElementById("productForm");
 const editingIdInput = document.getElementById("editingId");
 
 const categorySuggestions = document.getElementById("categorySuggestions");
-const clientSuggestions = document.getElementById("clientSuggestions");
 
 let categoryHistory = [];
-let clientHistory = [];
 
 const itemNo = document.getElementById("itemNo");
 const itemName = document.getElementById("itemName");
@@ -115,7 +113,7 @@ function getSavedCategories(items) {
 }
 
 function getSavedClients(items) {
-  return uniqueCI([...clientHistory, ...items.map(item => item.client || "")]).sort((a, b) => a.localeCompare(b));
+  return uniqueCI([...items.map(item => item.client || "")]).sort((a, b) => a.localeCompare(b));
 }
 
 function stripCurrencyPrefix(value) {
@@ -248,11 +246,22 @@ function renderCustomers() {
   `).join("");
 }
 
+
+// ── Populate client <select> from customers ──────────────────
+function populateClientDropdown(currentValue) {
+  if (!client) return;
+  const prev = currentValue !== undefined ? currentValue : client.value;
+  client.innerHTML = `<option value="">— Select Company —</option>` +
+    allCustomers.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("");
+  if (prev) client.value = prev;
+}
+
 async function loadCustomers() {
   try {
     const res = await fetch("/api/customers", { headers: { "Accept": "application/json" } });
     const data = await parseJsonSafe(res);
     allCustomers = Array.isArray(data.customers) ? data.customers : [];
+    populateClientDropdown();
     renderCustomers();
   } catch (err) {
     console.error("Load customers failed:", err);
@@ -396,8 +405,7 @@ function getCategorySuggestionList() {
 }
 
 function getClientSuggestionList() {
-  const typed = client.value.trim();
-  return uniqueCI([typed, ...clientHistory, ...getSavedClients(allProducts)]);
+  // client dropdown — no autocomplete needed
 }
 
 function wireAutocomplete(input, box, getList, saveHistory) {
@@ -430,7 +438,6 @@ function resetForm() {
   const titleEl2 = document.getElementById("productFormTitle");
   if (titleEl2) titleEl2.textContent = "Add Product";
   hideSuggestions(categorySuggestions);
-  hideSuggestions(clientSuggestions);
 }
 
 function renderPhotoPreview(files) {
@@ -481,9 +488,14 @@ function populateFilterOptions(items) {
     `<option value="">All Categories</option>` +
     categories.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
 
+  // Use customers list for filter, fall back to values from items
+  const allClientNames = uniqueCI([
+    ...allCustomers.map(c => c.name),
+    ...clients
+  ]).sort((a, b) => a.localeCompare(b));
   clientFilter.innerHTML =
-    `<option value="">All Clients</option>` +
-    clients.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+    `<option value="">All Companies</option>` +
+    allClientNames.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
 
   if (categories.includes(currentCategory)) categoryFilter.value = currentCategory;
   if (clients.includes(currentClient)) clientFilter.value = currentClient;
@@ -590,6 +602,7 @@ function startEdit(id) {
   itemName.value = item.itemName || "";
   category.value = item.category || "";
   client.value = item.client || "";
+  populateClientDropdown(item.client || "");
   capitalCurrency.value = normalizeCurrencyCode(item.capitalCurrency || "LAK");
   capitalPrice.value = item.capitalPrice || "";
   refreshPriceWithCurrency(capitalPrice, capitalCurrency);
@@ -734,9 +747,7 @@ productForm.addEventListener("submit", async e => {
     files.forEach(file => { formData.append("photos", file); });
 
     const typedCategory = category.value.trim();
-    const typedClient = client.value.trim();
     if (typedCategory) categoryHistory = uniqueCI([typedCategory, ...categoryHistory]);
-    if (typedClient) clientHistory = uniqueCI([typedClient, ...clientHistory]);
 
     const url = isEditing ? `/api/items/${editingId}` : "/api/items";
     const method = isEditing ? "PUT" : "POST";
@@ -786,8 +797,7 @@ resetFilterBtn.addEventListener("click", () => {
 document.addEventListener("click", e => {
   if (!e.target.closest(".autocomplete")) {
     hideSuggestions(categorySuggestions);
-    hideSuggestions(clientSuggestions);
-  }
+    }
 });
 
 if (modalClose) modalClose.addEventListener("click", closeDetail);
@@ -848,7 +858,5 @@ window.addEventListener("DOMContentLoaded", async () => {
   wireAutocomplete(category, categorySuggestions, getCategorySuggestionList, typed => {
     categoryHistory = uniqueCI([typed, ...categoryHistory]);
   });
-  wireAutocomplete(client, clientSuggestions, getClientSuggestionList, typed => {
-    clientHistory = uniqueCI([typed, ...clientHistory]);
-  });
+
 });
