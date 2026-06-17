@@ -933,14 +933,22 @@ window.addEventListener("DOMContentLoaded", async () => {
   if (customerModalBackdrop) customerModalBackdrop.addEventListener("click", closeCustomerModal);
   resetForm();
   const pageLoader = document.getElementById("pageLoader");
+  function hideLoader() {
+    if (pageLoader && !pageLoader.classList.contains("hidden")) {
+      pageLoader.classList.add("hidden");
+      setTimeout(() => { if (pageLoader.parentNode) pageLoader.remove(); }, 400);
+    }
+  }
+  // Safety: hide loader after 6 seconds no matter what
+  const loaderTimeout = setTimeout(hideLoader, 6000);
   try {
     await loadCustomers();
     await loadProducts();
+  } catch(e) {
+    console.error("Load error:", e);
   } finally {
-    if (pageLoader) {
-      pageLoader.classList.add("hidden");
-      setTimeout(() => pageLoader.remove(), 400);
-    }
+    clearTimeout(loaderTimeout);
+    hideLoader();
   }
 
   wireAutocomplete(category, categorySuggestions, getCategorySuggestionList, typed => {
