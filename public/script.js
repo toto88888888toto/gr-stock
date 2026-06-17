@@ -936,20 +936,13 @@ window.addEventListener("DOMContentLoaded", async () => {
   function hideLoader() {
     if (pageLoader && !pageLoader.classList.contains("hidden")) {
       pageLoader.classList.add("hidden");
-      setTimeout(() => { if (pageLoader.parentNode) pageLoader.remove(); }, 400);
+      setTimeout(() => { if (pageLoader.parentNode) pageLoader.remove(); }, 350);
     }
   }
-  // Safety: hide loader after 6 seconds no matter what
-  const loaderTimeout = setTimeout(hideLoader, 6000);
-  try {
-    await loadCustomers();
-    await loadProducts();
-  } catch(e) {
-    console.error("Load error:", e);
-  } finally {
-    clearTimeout(loaderTimeout);
-    hideLoader();
-  }
+  // Hide loader after 3 seconds no matter what
+  setTimeout(hideLoader, 3000);
+  // Load data (loader hides when done or after 3s, whichever first)
+  loadCustomers().then(() => loadProducts()).finally(hideLoader);
 
   wireAutocomplete(category, categorySuggestions, getCategorySuggestionList, typed => {
     categoryHistory = uniqueCI([typed, ...categoryHistory]);
