@@ -932,17 +932,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   if (openCustomerModalBtn) openCustomerModalBtn.addEventListener("click", openCustomerModal);
   if (customerModalBackdrop) customerModalBackdrop.addEventListener("click", closeCustomerModal);
   resetForm();
-  const pageLoader = document.getElementById("pageLoader");
-  function hideLoader() {
-    if (pageLoader && !pageLoader.classList.contains("hidden")) {
-      pageLoader.classList.add("hidden");
-      setTimeout(() => { if (pageLoader.parentNode) pageLoader.remove(); }, 350);
-    }
-  }
-  // Hide loader after 3 seconds no matter what
-  setTimeout(hideLoader, 3000);
-  // Load data (loader hides when done or after 3s, whichever first)
-  loadCustomers().then(() => loadProducts()).finally(hideLoader);
+  // Load data
+  await loadCustomers();
+  await loadProducts();
 
   wireAutocomplete(category, categorySuggestions, getCategorySuggestionList, typed => {
     categoryHistory = uniqueCI([typed, ...categoryHistory]);
