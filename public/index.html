@@ -144,31 +144,41 @@
             <label for="client">Client</label>
             <select id="client"><option value="">— Select Company —</option></select>
           </div>
-          <div class="field">
-            <label for="capitalCurrency">Capital Currency</label>
-            <select id="capitalCurrency">
-              <option value="LAK">LAK</option>
-              <option value="THB">THB</option>
-              <option value="USD">USD</option>
-              <option value="CNY">CNY</option>
-            </select>
+          <div class="field field-span-2">
+            <label>Capital Price</label>
+            <div class="price-group">
+              <select id="capitalCurrency">
+                <option value="LAK">LAK</option>
+                <option value="THB">THB</option>
+                <option value="USD">USD</option>
+                <option value="CNY">CNY</option>
+              </select>
+              <input id="capitalPrice" type="text" placeholder="0" />
+            </div>
+            <div class="price-chips">
+              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',100)">100</button>
+              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',500)">500</button>
+              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',1000)">1,000</button>
+              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',5000)">5,000</button>
+            </div>
           </div>
-          <div class="field">
-            <label for="capitalPrice">Capital Price</label>
-            <input id="capitalPrice" type="text" placeholder="LAK 0" />
-          </div>
-          <div class="field">
-            <label for="wholesaleCurrency">Wholesale Currency</label>
-            <select id="wholesaleCurrency">
-              <option value="LAK">LAK</option>
-              <option value="THB">THB</option>
-              <option value="USD">USD</option>
-              <option value="CNY">CNY</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="wholesalePrice">Wholesale Price</label>
-            <input id="wholesalePrice" type="text" placeholder="LAK 0" />
+          <div class="field field-span-2">
+            <label>Wholesale Price</label>
+            <div class="price-group">
+              <select id="wholesaleCurrency">
+                <option value="LAK">LAK</option>
+                <option value="THB">THB</option>
+                <option value="USD">USD</option>
+                <option value="CNY">CNY</option>
+              </select>
+              <input id="wholesalePrice" type="text" placeholder="0" />
+            </div>
+            <div class="price-chips">
+              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',100)">100</button>
+              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',500)">500</button>
+              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',1000)">1,000</button>
+              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',5000)">5,000</button>
+            </div>
           </div>
           <div class="field field-span-2">
             <label for="descEn">Description (EN)</label>
@@ -364,6 +374,19 @@
         closeCustomerModal();
       }
     });
+
+    // Price quick-select chips
+    window.setPrice = function(priceId, currencyId, value) {
+      const priceInput    = document.getElementById(priceId);
+      const currencySelect = document.getElementById(currencyId);
+      if (!priceInput || !currencySelect) return;
+      const code = currencySelect.value || "LAK";
+      priceInput.value = code + " " + value.toLocaleString("en-US");
+      // highlight active chip
+      const wrap = priceInput.closest(".field");
+      wrap.querySelectorAll(".price-chip").forEach(c => c.classList.remove("price-chip--active"));
+      event.currentTarget.classList.add("price-chip--active");
+    };
   </script>
 </body>
 </html>
