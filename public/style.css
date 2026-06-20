@@ -218,29 +218,36 @@ body {
   font-weight: 400;
 }
 
-.section-footer-right {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-}
+
 
 /* ── FAB BUTTON ──────────────────────────── */
 .btn-fab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  width: 36px;
   height: 36px;
-  padding: 0 16px;
-  border-radius: var(--r);
+  border-radius: var(--r-full);
   background: var(--accent);
   color: var(--accent-fg);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: -.1px;
-  transition: background .15s, opacity .15s;
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  transition: background .15s, transform .15s, box-shadow .15s;
 }
-.btn-fab:hover { background: var(--accent-hover); }
-.btn-fab:active { opacity: .85; }
+.btn-fab:hover {
+  background: var(--accent-hover);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,.22);
+}
+.btn-fab:active { transform: scale(.95); }
+
+.section-footer-right {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
 
 /* ── CUSTOMER BAR — MARQUEE TICKER ───────── */
 .customer-logo-bar {
