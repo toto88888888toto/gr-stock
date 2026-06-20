@@ -602,6 +602,36 @@ function openDetail(id) {
   modalDescEn.textContent = item.descEn || "-";
   modalDescLa.textContent = item.descLa || "-";
 
+  // Quantity price breakdown
+  const mqp = document.getElementById("modalQtyPrices");
+  if (mqp) {
+    const uPrice = getNumeric(item.wholesalePrice);
+    const uCurr  = (item.wholesaleCurrency || "LAK").toUpperCase();
+    const uSym   = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" }[uCurr] || (uCurr + " ");
+    const tiers  = [
+      { qty: 100,   label: "100 pcs"   },
+      { qty: 500,   label: "500 pcs"   },
+      { qty: 1000,  label: "1,000 pcs" },
+      { qty: 5000,  label: "5,000 pcs" }
+    ];
+    if (uPrice > 0) {
+      mqp.innerHTML = `
+        <div class="mqp-header">Quantity Pricing (wholesale)</div>
+        <div class="mqp-grid">
+          ${tiers.map(({ qty, label }) => {
+            const total = uPrice * qty;
+            const fmt = uSym + total.toLocaleString("en-US", { maximumFractionDigits: 0 });
+            return `<div class="mqp-row">
+              <span class="mqp-qty">${label}</span>
+              <span class="mqp-total">${fmt}</span>
+            </div>`;
+          }).join("")}
+        </div>`;
+    } else {
+      mqp.innerHTML = "";
+    }
+  }
+
   // Customer logo in modal
   const logoUrl = getCustomerLogo(item.client);
   if (logoUrl && modalCustomerLogo) {

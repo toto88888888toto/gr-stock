@@ -1367,6 +1367,52 @@ select {
   border-color: var(--accent);
 }
 
+
+/* ── MODAL QTY PRICES ────────────────────── */
+.modal-qty-prices {
+  margin-bottom: 14px;
+}
+
+.mqp-header {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.mqp-grid {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.mqp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background .1s;
+}
+.mqp-row:last-child { border-bottom: none; }
+.mqp-row:hover { background: var(--surface-2); }
+
+.mqp-qty {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.mqp-total {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.4px;
+}
+
 /* ── RESPONSIVE ──────────────────────────── */
 @media (max-width: 1200px) {
   .product-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
