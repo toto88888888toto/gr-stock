@@ -422,7 +422,7 @@
         const el = document.getElementById(id);
         if (!el) return;
         if (!isNaN(unitPrice) && unitPrice > 0) {
-          const total = unitPrice * qty * (1 + pct / 100);
+          const total = unitPrice * (1 + pct / 100);
           el.textContent = sym + total.toLocaleString("en-US", { maximumFractionDigits: 0 });
         } else {
           el.textContent = "—";
