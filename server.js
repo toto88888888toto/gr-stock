@@ -12,8 +12,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── Auth config ────────────────────────────────────────────────
-const APP_USER = process.env.APP_USER || "Bin";
-const APP_PASS = process.env.APP_PASS || "123456";
+const USERS = {
+  "toto":  "27101998",
+  "yom":   "123456",
+  "Glori": "123456"
+};
+// Legacy single-user fallback (kept for Railway env vars if set)
+const APP_USER = process.env.APP_USER || "";
+const APP_PASS = process.env.APP_PASS || "";
 const SESSION_SECRET = process.env.SESSION_SECRET || "gr-stock-secret-2024";
 
 app.use(session({
@@ -663,7 +669,9 @@ app.delete("/api/customers/:id", async (req, res) => {
 // ── Auth routes ────────────────────────────────────────────────
 app.post("/api/login", express.json(), (req, res) => {
   const { username, password } = req.body || {};
-  if (username === APP_USER && password === APP_PASS) {
+  const validFromList = USERS[username] === password;
+  const validLegacy   = APP_USER && APP_PASS && username === APP_USER && password === APP_PASS;
+  if (validFromList || validLegacy) {
     req.session.loggedIn = true;
     req.session.username = username;
     return res.json({ success: true });
