@@ -300,13 +300,13 @@ body {
   align-items: center;
   gap: 0;
   height: 100%;
-  animation: marquee-scroll 60s linear infinite;
+  animation: marquee-scroll 80s linear infinite;
   will-change: transform;
 }
 
 @keyframes marquee-scroll {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-25%); }
 }
 
 .customer-logo-chip {
