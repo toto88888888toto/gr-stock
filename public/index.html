@@ -4,14 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GR Stock</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  />
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script>
     (function(){
@@ -22,6 +17,7 @@
 </head>
 <body>
 
+  <!-- TOPBAR -->
   <header class="topbar">
     <div class="container topbar-inner">
       <div class="brand">
@@ -40,137 +36,13 @@
     </div>
   </header>
 
+  <!-- CUSTOMER LOGOS STRIP (thin, always visible) -->
+  <div class="logos-strip">
+    <div id="customerList" class="customer-logo-bar"></div>
+  </div>
+
+  <!-- MAIN PAGE -->
   <main class="container page">
-
-    <!-- CUSTOMERS -->
-    <section class="card customer-section">
-      <div class="section-row-head">
-        <div>
-          <h2 class="section-title">Customers</h2>
-          <p class="section-sub">Logos appear on each product card</p>
-        </div>
-      </div>
-      <div id="customerList" class="customer-logo-bar"></div>
-      <div class="section-footer-right">
-        <button id="addCustomerBtn" class="btn-fab" type="button">+</button>
-      </div>
-
-      <form id="customerForm" class="customer-form hidden" enctype="multipart/form-data">
-        <input type="hidden" id="editingCustomerId" />
-        <div class="field">
-          <label for="customerName">Customer Name</label>
-          <input id="customerName" type="text" placeholder="Enter customer name" required />
-        </div>
-        <div class="field">
-          <label for="customerLogo">Logo Image</label>
-          <input id="customerLogo" type="file" accept="image/*" />
-          <div id="customerLogoPreview" class="customer-logo-preview"></div>
-        </div>
-        <div class="actions field-span-2">
-          <button class="btn btn-primary" id="saveCustomerBtn" type="submit">Save</button>
-          <button class="btn btn-secondary" id="cancelCustomerBtn" type="button">Cancel</button>
-        </div>
-      </form>
-    </section>
-
-    <!-- ADD PRODUCT -->
-    <section class="card">
-      <div class="section-row-head">
-        <div>
-          <h2 id="productFormTitle" class="section-title">Add Product</h2>
-          <p class="section-sub">Products and images are saved to Google Drive</p>
-        </div>
-      </div>
-
-      <div id="productFormBody" class="collapsible-body collapsed">
-        <form id="productForm" class="form-grid" enctype="multipart/form-data">
-
-          <input type="hidden" id="editingId" />
-
-          <div class="field">
-            <label for="itemNo">Item No</label>
-            <input id="itemNo" type="text" value="AUTO" readonly />
-          </div>
-
-          <div class="field">
-            <label for="itemName">Item Name</label>
-            <input id="itemName" type="text" placeholder="Enter item name" required />
-          </div>
-
-          <div class="field">
-            <label for="category">Category</label>
-            <div class="autocomplete">
-              <input type="text" id="category" placeholder="Type category" autocomplete="off" />
-              <div id="categorySuggestions" class="suggestions"></div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="client">Client</label>
-            <select id="client">
-              <option value="">— Select Company —</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="capitalCurrency">Capital Currency</label>
-            <select id="capitalCurrency">
-              <option value="LAK">LAK</option>
-              <option value="THB">THB</option>
-              <option value="USD">USD</option>
-              <option value="CNY">CNY</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="capitalPrice">Capital Price</label>
-            <input id="capitalPrice" type="text" placeholder="LAK 0" />
-          </div>
-
-          <div class="field">
-            <label for="wholesaleCurrency">Wholesale Currency</label>
-            <select id="wholesaleCurrency">
-              <option value="LAK">LAK</option>
-              <option value="THB">THB</option>
-              <option value="USD">USD</option>
-              <option value="CNY">CNY</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="wholesalePrice">Wholesale Price</label>
-            <input id="wholesalePrice" type="text" placeholder="LAK 0" />
-          </div>
-
-          <div class="field field-span-2">
-            <label for="descEn">Description (EN)</label>
-            <textarea id="descEn" rows="3" placeholder="Enter English description"></textarea>
-          </div>
-
-          <div class="field field-span-2">
-            <label for="descLa">Description (LA)</label>
-            <textarea id="descLa" rows="3" placeholder="Enter Lao description"></textarea>
-          </div>
-
-          <div class="field field-span-2">
-            <label for="photos">Product Photos</label>
-            <input id="photos" type="file" accept="image/*" multiple />
-            <small>You can upload up to 5 photos</small>
-            <div id="photoPreview" class="photo-preview"></div>
-          </div>
-
-          <div class="actions field-span-2">
-            <button class="btn btn-primary" id="saveBtn" type="submit">Save Product</button>
-            <button class="btn btn-secondary" id="clearBtn" type="button">Clear Form</button>
-            <button class="btn btn-secondary" id="downloadExcelBtn" type="button">Download Excel</button>
-          </div>
-
-        </form>
-      </div>
-      <div class="section-footer-right">
-        <button class="btn-fab" id="toggleProductFormBtn" type="button">+</button>
-      </div>
-    </section>
 
     <!-- SEARCH -->
     <section class="card">
@@ -180,7 +52,6 @@
           <p class="section-sub">Search and filter your inventory</p>
         </div>
       </div>
-
       <div class="toolbar-grid">
         <div class="field toolbar-search">
           <label for="searchInput">Search</label>
@@ -188,15 +59,11 @@
         </div>
         <div class="field">
           <label for="categoryFilter">Category</label>
-          <select id="categoryFilter">
-            <option value="">All Categories</option>
-          </select>
+          <select id="categoryFilter"><option value="">All Categories</option></select>
         </div>
         <div class="field">
           <label for="clientFilter">Client</label>
-          <select id="clientFilter">
-            <option value="">All Clients</option>
-          </select>
+          <select id="clientFilter"><option value="">All Clients</option></select>
         </div>
         <div class="field">
           <label for="priceFilter">Price Range</label>
@@ -244,13 +111,123 @@
 
   </main>
 
-  <!-- Detail Modal -->
+
+  <!-- ═══════ PRODUCT FORM MODAL ═══════ -->
+  <div id="productModal" class="form-overlay hidden">
+    <div class="form-overlay-backdrop" id="productModalBackdrop"></div>
+    <div class="form-overlay-box">
+      <div class="form-overlay-header">
+        <h3 id="productFormTitle">Add Product</h3>
+        <button class="modal-close" id="productModalClose">✕</button>
+      </div>
+      <!-- productFormBody keeps its ID so script.js works -->
+      <div id="productFormBody" class="collapsible-body">
+        <form id="productForm" class="form-grid" enctype="multipart/form-data">
+          <input type="hidden" id="editingId" />
+
+          <div class="field">
+            <label for="itemNo">Item No</label>
+            <input id="itemNo" type="text" value="AUTO" readonly />
+          </div>
+          <div class="field">
+            <label for="itemName">Item Name</label>
+            <input id="itemName" type="text" placeholder="Enter item name" required />
+          </div>
+          <div class="field">
+            <label for="category">Category</label>
+            <div class="autocomplete">
+              <input type="text" id="category" placeholder="Type category" autocomplete="off" />
+              <div id="categorySuggestions" class="suggestions"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="client">Client</label>
+            <select id="client"><option value="">— Select Company —</option></select>
+          </div>
+          <div class="field">
+            <label for="capitalCurrency">Capital Currency</label>
+            <select id="capitalCurrency">
+              <option value="LAK">LAK</option>
+              <option value="THB">THB</option>
+              <option value="USD">USD</option>
+              <option value="CNY">CNY</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="capitalPrice">Capital Price</label>
+            <input id="capitalPrice" type="text" placeholder="LAK 0" />
+          </div>
+          <div class="field">
+            <label for="wholesaleCurrency">Wholesale Currency</label>
+            <select id="wholesaleCurrency">
+              <option value="LAK">LAK</option>
+              <option value="THB">THB</option>
+              <option value="USD">USD</option>
+              <option value="CNY">CNY</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="wholesalePrice">Wholesale Price</label>
+            <input id="wholesalePrice" type="text" placeholder="LAK 0" />
+          </div>
+          <div class="field field-span-2">
+            <label for="descEn">Description (EN)</label>
+            <textarea id="descEn" rows="3" placeholder="Enter English description"></textarea>
+          </div>
+          <div class="field field-span-2">
+            <label for="descLa">Description (LA)</label>
+            <textarea id="descLa" rows="3" placeholder="Enter Lao description"></textarea>
+          </div>
+          <div class="field field-span-2">
+            <label for="photos">Product Photos</label>
+            <input id="photos" type="file" accept="image/*" multiple />
+            <small>You can upload up to 5 photos</small>
+            <div id="photoPreview" class="photo-preview"></div>
+          </div>
+          <div class="actions field-span-2">
+            <button class="btn btn-primary" id="saveBtn" type="submit">Save Product</button>
+            <button class="btn btn-secondary" id="clearBtn" type="button">Clear</button>
+            <button class="btn btn-secondary" id="downloadExcelBtn" type="button">Download Excel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════ CUSTOMER FORM MODAL ═══════ -->
+  <div id="customerModal" class="form-overlay hidden">
+    <div class="form-overlay-backdrop" id="customerModalBackdrop"></div>
+    <div class="form-overlay-box form-overlay-box--sm">
+      <div class="form-overlay-header">
+        <h3>Add Customer</h3>
+        <button class="modal-close" id="customerModalClose">✕</button>
+      </div>
+      <form id="customerForm" class="customer-form-fields" enctype="multipart/form-data">
+        <input type="hidden" id="editingCustomerId" />
+        <div class="field">
+          <label for="customerName">Customer Name</label>
+          <input id="customerName" type="text" placeholder="Enter customer name" required />
+        </div>
+        <div class="field">
+          <label for="customerLogo">Logo Image</label>
+          <input id="customerLogo" type="file" accept="image/*" />
+          <div id="customerLogoPreview" class="customer-logo-preview"></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="saveCustomerBtn" type="submit">Save</button>
+          <button class="btn btn-secondary" id="cancelCustomerBtn" type="button">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ═══════ DETAIL MODAL ═══════ -->
   <div id="detailModal" class="modal hidden">
     <div class="modal-backdrop" id="modalBackdrop"></div>
-
     <div class="modal-box">
       <button type="button" class="modal-close" id="modalClose">✕</button>
-
       <div class="modal-header">
         <div class="modal-title-row">
           <div id="modalCustomerLogo" class="modal-customer-logo hidden"></div>
@@ -264,40 +241,129 @@
           <button type="button" id="modalDeleteBtn" class="modal-delete-btn">Delete</button>
         </div>
       </div>
-
       <div class="modal-gallery" id="modalGallery"></div>
-
       <div class="modal-grid">
-        <div class="info-box">
-          <span>Category</span>
-          <strong id="modalCategory">-</strong>
-        </div>
-        <div class="info-box">
-          <span>Client</span>
-          <strong id="modalClient">-</strong>
-        </div>
-        <div class="info-box">
-          <span>Capital</span>
-          <strong id="modalCapital">-</strong>
-        </div>
-        <div class="info-box">
-          <span>Wholesale</span>
-          <strong id="modalWholesale">-</strong>
-        </div>
+        <div class="info-box"><span>Category</span><strong id="modalCategory">-</strong></div>
+        <div class="info-box"><span>Client</span><strong id="modalClient">-</strong></div>
+        <div class="info-box"><span>Capital</span><strong id="modalCapital">-</strong></div>
+        <div class="info-box"><span>Wholesale</span><strong id="modalWholesale">-</strong></div>
       </div>
-
-      <div class="info-long">
-        <span>Description (EN)</span>
-        <p id="modalDescEn">-</p>
-      </div>
-
-      <div class="info-long">
-        <span>Description (LA)</span>
-        <p id="modalDescLa">-</p>
-      </div>
+      <div class="info-long"><span>Description (EN)</span><p id="modalDescEn">-</p></div>
+      <div class="info-long"><span>Description (LA)</span><p id="modalDescLa">-</p></div>
     </div>
   </div>
 
+
+  <!-- ═══════ FIXED FAB ═══════ -->
+  <div class="fab-wrap">
+    <div class="fab-dial hidden" id="fabDial">
+      <button class="fab-dial-item" id="fabAddCustomer">
+        <span class="fab-dial-icon">🏢</span>
+        <span class="fab-dial-label">Add Customer</span>
+      </button>
+      <button class="fab-dial-item" id="fabAddProduct">
+        <span class="fab-dial-icon">📦</span>
+        <span class="fab-dial-label">Add Product</span>
+      </button>
+    </div>
+    <button class="fab-main" id="fabMain" title="Add">+</button>
+  </div>
+
+  <!-- Hidden trigger buttons (required by script.js) -->
+  <div style="display:none">
+    <button id="addCustomerBtn"></button>
+    <button id="toggleProductFormBtn"></button>
+  </div>
+
   <script src="script.js"></script>
+  <script>
+    // ── FAB + Modal logic (runs after script.js) ──
+    const fabMain    = document.getElementById("fabMain");
+    const fabDial    = document.getElementById("fabDial");
+    const productModal  = document.getElementById("productModal");
+    const customerModal = document.getElementById("customerModal");
+
+    // FAB toggle
+    fabMain.addEventListener("click", e => {
+      e.stopPropagation();
+      const isOpen = !fabDial.classList.contains("hidden");
+      fabDial.classList.toggle("hidden", isOpen);
+      fabMain.classList.toggle("fab-main--open", !isOpen);
+    });
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".fab-wrap")) {
+        fabDial.classList.add("hidden");
+        fabMain.classList.remove("fab-main--open");
+      }
+    });
+
+    // ── Product Modal ──
+    function openProductModal() {
+      fabDial.classList.add("hidden");
+      fabMain.classList.remove("fab-main--open");
+      productModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+      openProductForm(); // script.js: removes .collapsed
+    }
+    function closeProductModal() {
+      if (productModal.classList.contains("hidden")) return;
+      productModal.classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    // Override closeProductForm so saves/clears also close modal (guard against loops)
+    const _origCloseProductForm = window.closeProductForm;
+    window.closeProductForm = function() {
+      if (_origCloseProductForm) _origCloseProductForm();
+      closeProductModal();
+    };
+
+    document.getElementById("productModalClose").addEventListener("click", () => {
+      closeProductForm(); // closes form + modal via override
+    });
+    document.getElementById("productModalBackdrop").addEventListener("click", () => {
+      closeProductForm();
+    });
+
+    // ── Customer Modal ──
+    function openCustomerModal() {
+      fabDial.classList.add("hidden");
+      fabMain.classList.remove("fab-main--open");
+      customerModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+      document.getElementById("addCustomerBtn").click(); // script.js: resets + shows form
+    }
+    function closeCustomerModal() {
+      if (customerModal.classList.contains("hidden")) return;
+      customerModal.classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    document.getElementById("customerModalClose").addEventListener("click", closeCustomerModal);
+    document.getElementById("customerModalBackdrop").addEventListener("click", closeCustomerModal);
+    document.getElementById("cancelCustomerBtn").addEventListener("click", closeCustomerModal);
+    document.getElementById("customerForm").addEventListener("submit", () => {
+      setTimeout(closeCustomerModal, 400);
+    });
+
+    // FAB buttons
+    document.getElementById("fabAddProduct").addEventListener("click", openProductModal);
+    document.getElementById("fabAddCustomer").addEventListener("click", openCustomerModal);
+
+    // Edit product from detail modal → open product modal
+    const _origStartEdit = window.startEdit;
+    window.startEdit = function(id) {
+      if (_origStartEdit) _origStartEdit(id);
+      openProductModal();
+    };
+
+    // Escape key
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        closeProductForm();
+        closeCustomerModal();
+      }
+    });
+  </script>
 </body>
 </html>
