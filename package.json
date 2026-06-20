@@ -6,7 +6,8 @@
     "node": "22"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "node -e \"const fs=require('fs'),p='node_modules/gtoken/build/src/index.js';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace('https://www.googleapis.com/oauth2/v4/token','https://oauth2.googleapis.com/token'))\""
   },
   "dependencies": {
     "cors": "^2.8.5",
