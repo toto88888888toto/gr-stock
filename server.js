@@ -15,7 +15,8 @@ const PORT = process.env.PORT || 3000;
 const USERS = {
   "toto":  "27101998",
   "yom":   "123456",
-  "Glori": "123456"
+  "Glori": "123456",
+  "bin":   "123456"
 };
 // Legacy single-user fallback (kept for Railway env vars if set)
 const APP_USER = process.env.APP_USER || "";
