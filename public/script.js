@@ -680,39 +680,51 @@ function renderProducts(items) {
     const safeId = escapeHtml(item.id || "");
     const logoUrl = getCustomerLogo(item.client);
 
-    // Build quantity price grid
+    // Quantity price — abbreviated for readability
     const unitPrice = getNumeric(item.wholesalePrice);
     const wCurr = (item.wholesaleCurrency || "LAK").toUpperCase();
     const wSym = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" }[wCurr] || (wCurr + " ");
-    function fmtQtyPrice(qty) {
-      if (!unitPrice) return "—";
-      return wSym + (unitPrice * qty).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    function fmtAbbrev(num) {
+      if (!num || !unitPrice) return "—";
+      if (num >= 1e9) return wSym + (num/1e9).toFixed(1).replace(/\.0$/,"") + "B";
+      if (num >= 1e6) return wSym + (num/1e6).toFixed(1).replace(/\.0$/,"") + "M";
+      if (num >= 1e3) return wSym + (num/1e3).toFixed(1).replace(/\.0$/,"") + "K";
+      return wSym + num.toLocaleString("en-US");
     }
 
     return `
       <div class="product-card clean-card" onclick="openDetail('${safeId}')">
-        <div class="card-inner">
-          <div class="card-photo-wrap">
-            ${photo
-              ? `<img class="card-photo" src="${photo}" alt="${escapeHtml(item.itemName || "")}" onerror="this.outerHTML='<div class=&quot;card-no-photo&quot;>No Photo</div>'">`
-              : `<div class="card-no-photo">No Photo</div>`
-            }
-            ${logoUrl
-              ? `<div class="card-customer-badge"><img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(item.client || "")}" onerror="this.parentElement.style.display='none'" /></div>`
-              : item.client
-                ? `<div class="card-customer-badge card-customer-initial">${escapeHtml(item.client.charAt(0).toUpperCase())}</div>`
-                : ""
-            }
-          </div>
-
-          <div class="card-info">
-            <div class="card-itemno">${escapeHtml(item.itemNo || "-")}</div>
-            <h3 class="card-title">${escapeHtml(item.itemName || "-")}</h3>
-            <div class="card-price-grid">
-              <div class="cpg-row"><span class="cpg-qty">100</span><span class="cpg-val">${fmtQtyPrice(100)}</span></div>
-              <div class="cpg-row"><span class="cpg-qty">500</span><span class="cpg-val">${fmtQtyPrice(500)}</span></div>
-              <div class="cpg-row"><span class="cpg-qty">1,000</span><span class="cpg-val">${fmtQtyPrice(1000)}</span></div>
-              <div class="cpg-row"><span class="cpg-qty">5,000</span><span class="cpg-val">${fmtQtyPrice(5000)}</span></div>
+        <div class="card-photo-wrap">
+          ${photo
+            ? `<img class="card-photo" src="${photo}" alt="${escapeHtml(item.itemName || "")}" onerror="this.outerHTML='<div class=&quot;card-no-photo&quot;>No Photo</div>'">`
+            : `<div class="card-no-photo">No Photo</div>`
+          }
+          ${logoUrl
+            ? `<div class="card-customer-badge"><img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(item.client || "")}" onerror="this.parentElement.style.display='none'" /></div>`
+            : item.client
+              ? `<div class="card-customer-badge card-customer-initial">${escapeHtml(item.client.charAt(0).toUpperCase())}</div>`
+              : ""
+          }
+        </div>
+        <div class="card-body">
+          <p class="card-itemno">${escapeHtml(item.itemNo || "—")}</p>
+          <h3 class="card-title">${escapeHtml(item.itemName || "—")}</h3>
+          <div class="card-prices">
+            <div class="cp-row">
+              <span class="cp-qty">100 pcs</span>
+              <span class="cp-price">${fmtAbbrev(unitPrice * 100)}</span>
+            </div>
+            <div class="cp-row">
+              <span class="cp-qty">500 pcs</span>
+              <span class="cp-price">${fmtAbbrev(unitPrice * 500)}</span>
+            </div>
+            <div class="cp-row">
+              <span class="cp-qty">1,000 pcs</span>
+              <span class="cp-price">${fmtAbbrev(unitPrice * 1000)}</span>
+            </div>
+            <div class="cp-row">
+              <span class="cp-qty">5,000 pcs</span>
+              <span class="cp-price">${fmtAbbrev(unitPrice * 5000)}</span>
             </div>
           </div>
         </div>
