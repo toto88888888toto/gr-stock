@@ -86,7 +86,7 @@ body {
   width: 100%;
   max-width: var(--max);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 12px;
 }
 
 /* ── TOPBAR ──────────────────────────────── */
@@ -300,7 +300,7 @@ body {
   align-items: center;
   gap: 0;
   height: 100%;
-  animation: marquee-scroll 30s linear infinite;
+  animation: marquee-scroll 60s linear infinite;
   will-change: transform;
 }
 
