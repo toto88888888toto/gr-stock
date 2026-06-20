@@ -193,6 +193,18 @@
           <input type="hidden" id="wholesaleCurrency" value="LAK" />
           <input type="hidden" id="wholesalePrice" value="" />
           <div class="field field-span-2">
+            <label for="status">Status</label>
+            <select id="status">
+              <option value="">— Select Status —</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Revised">Revised</option>
+              <option value="Approved">Approved</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div class="field field-span-2">
             <label for="descEn">Description (EN)</label>
             <textarea id="descEn" rows="3" placeholder="Enter English description"></textarea>
           </div>
@@ -268,6 +280,7 @@
         <div class="info-box"><span>Category</span><strong id="modalCategory">-</strong></div>
         <div class="info-box"><span>Client</span><strong id="modalClient">-</strong></div>
         <div class="info-box"><span>Capital</span><strong id="modalCapital">-</strong></div>
+        <div class="info-box"><span>Status</span><strong id="modalStatus">-</strong></div>
         <div class="info-box" style="display:none"><span>Wholesale</span><strong id="modalWholesale">-</strong></div>
       </div>
       <div class="modal-qty-prices" id="modalQtyPrices"></div>

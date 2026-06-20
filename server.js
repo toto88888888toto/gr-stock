@@ -104,7 +104,7 @@ app.use(express.static(path.join(__dirname, "public")));
 const HEADERS = [
   "id", "itemNo", "itemName", "category", "client",
   "capitalCurrency", "capitalPrice", "wholesaleCurrency", "wholesalePrice",
-  "descEn", "descLa", "photos", "createdAt"
+  "descEn", "descLa", "photos", "createdAt", "status"
 ];
 
 const CUSTOMER_HEADERS = ["id", "name", "logoUrl"];
@@ -200,7 +200,8 @@ async function getAllItems() {
       descEn: row[9] || "",
       descLa: row[10] || "",
       photos: parsePhotos(row[11] || ""),
-      createdAt: row[12] || ""
+      createdAt: row[12] || "",
+      status: row[13] || ""
     }))
     .filter(item => item.id || item.itemName);
 }
@@ -314,6 +315,7 @@ app.post("/api/items", upload.array("photos", 20), async (req, res) => {
       wholesalePrice: normalizeMoney(req.body.wholesalePrice),
       descEn: String(req.body.descEn || "").trim(),
       descLa: String(req.body.descLa || "").trim(),
+      status: String(req.body.status || "").trim(),
       photos: uniqueArray(photoPaths),
       createdAt: new Date().toISOString()
     };
@@ -330,7 +332,7 @@ app.post("/api/items", upload.array("photos", 20), async (req, res) => {
         values: [[
           item.id, item.itemNo, item.itemName, item.category, item.client,
           item.capitalCurrency, item.capitalPrice, item.wholesaleCurrency, item.wholesalePrice,
-          item.descEn, item.descLa, photosToCellValue(item.photos), item.createdAt
+          item.descEn, item.descLa, photosToCellValue(item.photos), item.createdAt, item.status || ""
         ]]
       }
     });
@@ -397,6 +399,7 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
       wholesalePrice: normalizeMoney(req.body.wholesalePrice),
       descEn: String(req.body.descEn || "").trim(),
       descLa: String(req.body.descLa || "").trim(),
+      status: String(req.body.status || "").trim(),
       photos: finalPhotos,
       createdAt: targetItem.createdAt
     };
@@ -413,7 +416,7 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
         values: [[
           updatedItem.id, updatedItem.itemNo, updatedItem.itemName, updatedItem.category, updatedItem.client,
           updatedItem.capitalCurrency, updatedItem.capitalPrice, updatedItem.wholesaleCurrency, updatedItem.wholesalePrice,
-          updatedItem.descEn, updatedItem.descLa, photosToCellValue(updatedItem.photos), updatedItem.createdAt
+          updatedItem.descEn, updatedItem.descLa, photosToCellValue(updatedItem.photos), updatedItem.createdAt, updatedItem.status || ""
         ]]
       }
     });
@@ -497,7 +500,7 @@ app.get("/api/download-excel", async (req, res) => {
       sheet.addRow([
         item.id, item.itemNo, item.itemName, item.category, item.client,
         item.capitalCurrency, item.capitalPrice, item.wholesaleCurrency, item.wholesalePrice,
-        item.descEn, item.descLa, photosToCellValue(item.photos), item.createdAt
+        item.descEn, item.descLa, photosToCellValue(item.photos), item.createdAt, item.status || ""
       ]);
     }
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

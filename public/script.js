@@ -41,6 +41,7 @@ const wholesaleCurrency = document.getElementById("wholesaleCurrency");
 const wholesalePrice = document.getElementById("wholesalePrice");
 
 const descEn = document.getElementById("descEn");
+const statusSelect = document.getElementById("status");
 const descLa = document.getElementById("descLa");
 
 const photosInput = document.getElementById("photos");
@@ -476,6 +477,7 @@ function resetForm() {
   syncEditingIdInput();
   saveBtn.textContent = "Save Product";
   saveBtn.disabled = false;
+  if (statusSelect) statusSelect.value = "";
   const titleEl2 = document.getElementById("productFormTitle");
   if (titleEl2) titleEl2.textContent = "Add Product";
   hideSuggestions(categorySuggestions);
@@ -601,6 +603,11 @@ function openDetail(id) {
   modalWholesale.textContent = buildPriceText(item.wholesaleCurrency, item.wholesalePrice);
   modalDescEn.textContent = item.descEn || "-";
   modalDescLa.textContent = item.descLa || "-";
+  const modalStatusEl = document.getElementById("modalStatus");
+  if (modalStatusEl) {
+    modalStatusEl.textContent = item.status || "-";
+    modalStatusEl.className = item.status ? "status-badge status-" + item.status.toLowerCase().replace(/\s+/g, "-") : "";
+  }
 
   // Quantity price breakdown (based on capital price)
   const mqp = document.getElementById("modalQtyPrices");
@@ -683,6 +690,7 @@ function startEdit(id) {
   refreshPriceWithCurrency(wholesalePrice, wholesaleCurrency);
   descEn.value = item.descEn || "";
   descLa.value = item.descLa || "";
+  if (statusSelect) statusSelect.value = item.status || "";
   photosInput.value = "";
   renderExistingPhotoPreview(existingPhotos);
   saveBtn.textContent = "Update Product";
@@ -740,6 +748,7 @@ function renderProducts(items) {
               ? `<div class="card-customer-badge card-customer-initial">${escapeHtml(item.client.charAt(0).toUpperCase())}</div>`
               : ""
           }
+          ${item.status ? `<div class="card-status-badge status-${escapeHtml(item.status.toLowerCase().replace(/\s+/g,'-'))}">${escapeHtml(item.status)}</div>` : ""}
         </div>
         <div class="card-body">
           <p class="card-itemno">${escapeHtml(item.itemNo || "—")}</p>
@@ -832,6 +841,7 @@ productForm.addEventListener("submit", async e => {
     formData.append("wholesalePrice", cleanMoneyInput(wholesalePrice.value));
     formData.append("descEn", descEn.value.trim());
     formData.append("descLa", descLa.value.trim());
+    formData.append("status", statusSelect ? statusSelect.value.trim() : "");
     formData.append("existingPhotos", JSON.stringify(existingPhotos));
     files.forEach(file => { formData.append("photos", file); });
 

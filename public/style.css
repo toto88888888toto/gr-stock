@@ -1436,6 +1436,59 @@ select {
   letter-spacing: 0;
 }
 
+
+/* ── STATUS BADGES ───────────────────────── */
+.card-status-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+}
+
+/* Status colors */
+.status-in-progress,
+.card-status-badge.status-in-progress  { background: #FEF9C3; color: #854D0E; }
+
+.status-revised,
+.card-status-badge.status-revised      { background: #DBEAFE; color: #1D4ED8; }
+
+.status-approved,
+.card-status-badge.status-approved     { background: #DCFCE7; color: #15803D; }
+
+.status-on-hold,
+.card-status-badge.status-on-hold      { background: #F3F4F6; color: #6B7280; }
+
+.status-cancelled,
+.card-status-badge.status-cancelled    { background: #FEE2E2; color: #B91C1C; }
+
+[data-theme="dark"] .status-in-progress,
+[data-theme="dark"] .card-status-badge.status-in-progress  { background: rgba(250,204,21,.15); color: #FCD34D; }
+[data-theme="dark"] .status-revised,
+[data-theme="dark"] .card-status-badge.status-revised      { background: rgba(59,130,246,.15); color: #60A5FA; }
+[data-theme="dark"] .status-approved,
+[data-theme="dark"] .card-status-badge.status-approved     { background: rgba(34,197,94,.15);  color: #4ADE80; }
+[data-theme="dark"] .status-on-hold,
+[data-theme="dark"] .card-status-badge.status-on-hold      { background: rgba(156,163,175,.1); color: #9CA3AF; }
+[data-theme="dark"] .status-cancelled,
+[data-theme="dark"] .card-status-badge.status-cancelled    { background: rgba(239,68,68,.15);  color: #F87171; }
+
 /* ── RESPONSIVE ──────────────────────────── */
 @media (max-width: 1200px) {
   .product-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
