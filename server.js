@@ -166,7 +166,7 @@ async function ensureHeaders() {
   }
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_NAME}!A1:M1`
+    range: `${SHEET_NAME}!A1:N1`
   });
   if (!res.data.values || res.data.values.length === 0) {
     await sheets.spreadsheets.values.update({
@@ -182,7 +182,7 @@ async function getAllItems() {
   await ensureHeaders();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_NAME}!A:M`
+    range: `${SHEET_NAME}!A:N`
   });
   const rows = res.data.values || [];
   if (rows.length <= 1) return [];
@@ -326,7 +326,7 @@ app.post("/api/items", upload.array("photos", 20), async (req, res) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:M`,
+      range: `${SHEET_NAME}!A:N`,
       valueInputOption: "RAW",
       requestBody: {
         values: [[
@@ -351,7 +351,7 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
 
     const sheetRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:M`
+      range: `${SHEET_NAME}!A:N`
     });
 
     const rows = sheetRes.data.values || [];
@@ -410,7 +410,7 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A${targetRowIndex}:M${targetRowIndex}`,
+      range: `${SHEET_NAME}!A${targetRowIndex}:N${targetRowIndex}`,
       valueInputOption: "RAW",
       requestBody: {
         values: [[
@@ -439,7 +439,7 @@ app.delete("/api/items/:id", async (req, res) => {
 
     const sheetRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:M`
+      range: `${SHEET_NAME}!A:N`
     });
 
     const rows = sheetRes.data.values || [];
@@ -735,7 +735,7 @@ app.get("/api/sheet-test", async (req, res) => {
     });
     const itemsRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:M`
+      range: `${SHEET_NAME}!A:N`
     });
     res.json({
       ok: true,
