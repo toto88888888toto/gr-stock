@@ -724,9 +724,6 @@ function renderProducts(items) {
     function fmtItem(pct) {
       if (!unitPrice) return "—";
       const p = unitPrice * (1 + pct / 100);
-      if (p >= 1e9) return wSym + (p/1e9).toFixed(1).replace(/\.0$/,"") + "B";
-      if (p >= 1e6) return wSym + (p/1e6).toFixed(1).replace(/\.0$/,"") + "M";
-      if (p >= 1e3) return wSym + (p/1e3).toFixed(1).replace(/\.0$/,"") + "K";
       return wSym + p.toLocaleString("en-US", { maximumFractionDigits: 0 });
     }
 
