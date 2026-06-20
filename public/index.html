@@ -189,24 +189,9 @@
             </div>
           </div>
 
-          <div class="field field-span-2">
-            <label>Wholesale Price</label>
-            <div class="price-group">
-              <select id="wholesaleCurrency">
-                <option value="LAK">LAK</option>
-                <option value="THB">THB</option>
-                <option value="USD">USD</option>
-                <option value="CNY">CNY</option>
-              </select>
-              <input id="wholesalePrice" type="text" placeholder="0" />
-            </div>
-            <div class="price-chips">
-              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',100,this)">100</button>
-              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',500,this)">500</button>
-              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',1000,this)">1,000</button>
-              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',5000,this)">5,000</button>
-            </div>
-          </div>
+          <!-- wholesale hidden — not required in form -->
+          <input type="hidden" id="wholesaleCurrency" value="LAK" />
+          <input type="hidden" id="wholesalePrice" value="" />
           <div class="field field-span-2">
             <label for="descEn">Description (EN)</label>
             <textarea id="descEn" rows="3" placeholder="Enter English description"></textarea>

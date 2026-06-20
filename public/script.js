@@ -602,11 +602,11 @@ function openDetail(id) {
   modalDescEn.textContent = item.descEn || "-";
   modalDescLa.textContent = item.descLa || "-";
 
-  // Quantity price breakdown
+  // Quantity price breakdown (based on capital price)
   const mqp = document.getElementById("modalQtyPrices");
   if (mqp) {
-    const uPrice = getNumeric(item.wholesalePrice);
-    const uCurr  = (item.wholesaleCurrency || "LAK").toUpperCase();
+    const uPrice = getNumeric(item.capitalPrice) || getNumeric(item.wholesalePrice);
+    const uCurr  = (item.capitalCurrency || item.wholesaleCurrency || "LAK").toUpperCase();
     const uSym   = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" }[uCurr] || (uCurr + " ");
     const tiers  = [
       { qty: 100,   label: "100 pcs"   },
@@ -710,9 +710,9 @@ function renderProducts(items) {
     const safeId = escapeHtml(item.id || "");
     const logoUrl = getCustomerLogo(item.client);
 
-    // Quantity price — abbreviated for readability
-    const unitPrice = getNumeric(item.wholesalePrice);
-    const wCurr = (item.wholesaleCurrency || "LAK").toUpperCase();
+    // Quantity price — uses capital price as base
+    const unitPrice = getNumeric(item.capitalPrice) || getNumeric(item.wholesalePrice);
+    const wCurr = (item.capitalCurrency || item.wholesaleCurrency || "LAK").toUpperCase();
     const wSym = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" }[wCurr] || (wCurr + " ");
     function fmtAbbrev(num) {
       if (!num || !unitPrice) return "—";
