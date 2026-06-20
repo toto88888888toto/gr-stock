@@ -278,8 +278,8 @@ function renderCustomers() {
     customerListEl.innerHTML = '';
     return;
   }
-  // Quadruple content for truly seamless infinite scroll
-  customerListEl.innerHTML = `<div class="customer-marquee-track">${chips}${chips}${chips}${chips}</div>`;
+  // 2 copies — translateX(-50%) scrolls exactly one full set
+  customerListEl.innerHTML = `<div class="customer-marquee-track">${chips}${chips}</div>`;
 }
 
 

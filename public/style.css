@@ -290,23 +290,23 @@ body {
   background: linear-gradient(to left, #1E1E1E, transparent);
 }
 
-/* pause on hover so user can interact */
+.customer-marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  height: 100%;
+  animation: marquee-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+/* pause on hover */
 .customer-logo-bar:hover .customer-marquee-track {
   animation-play-state: paused;
 }
 
-.customer-marquee-track {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  height: 100%;
-  animation: marquee-scroll 80s linear infinite;
-  will-change: transform;
-}
-
 @keyframes marquee-scroll {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(-25%); }
+  100% { transform: translateX(-50%); }
 }
 
 .customer-logo-chip {
