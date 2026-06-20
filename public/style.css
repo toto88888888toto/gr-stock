@@ -759,18 +759,38 @@ body {
   text-overflow: ellipsis;
 }
 
-.card-bottom-row {
+.card-price-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.cpg-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 5px 8px;
+  gap: 4px;
 }
 
-.card-price-pill {
-  font-size: 13px;
+.cpg-qty {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.cpg-val {
+  font-size: 11px;
   font-weight: 700;
   color: var(--text);
   letter-spacing: -.2px;
+  text-align: right;
+  white-space: nowrap;
 }
 
 /* ── EMPTY STATE ─────────────────────────── */

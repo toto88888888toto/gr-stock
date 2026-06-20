@@ -680,6 +680,15 @@ function renderProducts(items) {
     const safeId = escapeHtml(item.id || "");
     const logoUrl = getCustomerLogo(item.client);
 
+    // Build quantity price grid
+    const unitPrice = getNumeric(item.wholesalePrice);
+    const wCurr = (item.wholesaleCurrency || "LAK").toUpperCase();
+    const wSym = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" }[wCurr] || (wCurr + " ");
+    function fmtQtyPrice(qty) {
+      if (!unitPrice) return "—";
+      return wSym + (unitPrice * qty).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    }
+
     return `
       <div class="product-card clean-card" onclick="openDetail('${safeId}')">
         <div class="card-inner">
@@ -699,8 +708,11 @@ function renderProducts(items) {
           <div class="card-info">
             <div class="card-itemno">${escapeHtml(item.itemNo || "-")}</div>
             <h3 class="card-title">${escapeHtml(item.itemName || "-")}</h3>
-            <div class="card-bottom-row">
-              <div class="card-price-pill">${wholesale}</div>
+            <div class="card-price-grid">
+              <div class="cpg-row"><span class="cpg-qty">100</span><span class="cpg-val">${fmtQtyPrice(100)}</span></div>
+              <div class="cpg-row"><span class="cpg-qty">500</span><span class="cpg-val">${fmtQtyPrice(500)}</span></div>
+              <div class="cpg-row"><span class="cpg-qty">1,000</span><span class="cpg-val">${fmtQtyPrice(1000)}</span></div>
+              <div class="cpg-row"><span class="cpg-qty">5,000</span><span class="cpg-val">${fmtQtyPrice(5000)}</span></div>
             </div>
           </div>
         </div>
