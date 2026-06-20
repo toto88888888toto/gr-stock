@@ -164,12 +164,28 @@
           </div>
           <!-- QTY CALCULATOR -->
           <div class="field field-span-2">
-            <label>Capital — Quantity Total</label>
+            <label>Quantity Price (with margin)</label>
             <div class="qty-calc" id="qtyCalc">
-              <div class="qty-row"><span class="qty-label">100 pcs</span><span class="qty-val" id="qtyVal100">—</span></div>
-              <div class="qty-row"><span class="qty-label">500 pcs</span><span class="qty-val" id="qtyVal500">—</span></div>
-              <div class="qty-row"><span class="qty-label">1,000 pcs</span><span class="qty-val" id="qtyVal1000">—</span></div>
-              <div class="qty-row"><span class="qty-label">5,000 pcs</span><span class="qty-val" id="qtyVal5000">—</span></div>
+              <div class="qty-row">
+                <span class="qty-label">100 pcs</span>
+                <span class="qty-pct">+85%</span>
+                <span class="qty-val" id="qtyVal100">—</span>
+              </div>
+              <div class="qty-row">
+                <span class="qty-label">500 pcs</span>
+                <span class="qty-pct">+55%</span>
+                <span class="qty-val" id="qtyVal500">—</span>
+              </div>
+              <div class="qty-row">
+                <span class="qty-label">1,000 pcs</span>
+                <span class="qty-pct">+40%</span>
+                <span class="qty-val" id="qtyVal1000">—</span>
+              </div>
+              <div class="qty-row">
+                <span class="qty-label">5,000 pcs</span>
+                <span class="qty-pct">+25%</span>
+                <span class="qty-val" id="qtyVal5000">—</span>
+              </div>
             </div>
           </div>
 
@@ -386,24 +402,28 @@
       }
     });
 
-    // Qty calculator
-    const QTY_AMOUNTS = [100, 500, 1000, 5000];
+    // Qty calculator — price × qty × (1 + margin%)
+    const QTY_TIERS = [
+      { qty: 100,  pct: 85,  id: "qtyVal100"  },
+      { qty: 500,  pct: 55,  id: "qtyVal500"  },
+      { qty: 1000, pct: 40,  id: "qtyVal1000" },
+      { qty: 5000, pct: 25,  id: "qtyVal5000" }
+    ];
     function updateQtyCalc() {
       const priceInput = document.getElementById("capitalPrice");
       const currSel    = document.getElementById("capitalCurrency");
       if (!priceInput || !currSel) return;
-      // strip currency prefix and commas to get numeric value
       const raw = priceInput.value.replace(/^[A-Z]{3}\s*/i, "").replace(/,/g, "").trim();
-      const num = parseFloat(raw);
+      const unitPrice = parseFloat(raw);
       const code = (currSel.value || "LAK").toUpperCase();
       const symbols = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" };
-      const sym = symbols[code] || code + " ";
-      QTY_AMOUNTS.forEach(qty => {
-        const el = document.getElementById("qtyVal" + qty);
+      const sym = symbols[code] || (code + " ");
+      QTY_TIERS.forEach(({ qty, pct, id }) => {
+        const el = document.getElementById(id);
         if (!el) return;
-        if (!isNaN(num) && num > 0) {
-          const total = num * qty;
-          el.textContent = sym + total.toLocaleString("en-US", {maximumFractionDigits: 2});
+        if (!isNaN(unitPrice) && unitPrice > 0) {
+          const total = unitPrice * qty * (1 + pct / 100);
+          el.textContent = sym + total.toLocaleString("en-US", { maximumFractionDigits: 0 });
         } else {
           el.textContent = "—";
         }
