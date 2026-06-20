@@ -253,7 +253,7 @@ function resetCustomerForm() {
 
 function renderCustomers() {
   if (!customerListEl) return;
-  customerListEl.innerHTML = allCustomers.map(c => {
+  const chips = allCustomers.map(c => {
     const initial = escapeHtml(c.name.charAt(0).toUpperCase());
     const id = escapeHtml(c.id);
     const name = escapeHtml(c.name);
@@ -272,6 +272,13 @@ function renderCustomers() {
       </div>
     </div>`;
   }).join("");
+
+  if (!allCustomers.length) {
+    customerListEl.innerHTML = '';
+    return;
+  }
+  // Duplicate content for seamless infinite scroll
+  customerListEl.innerHTML = `<div class="customer-marquee-track">${chips}${chips}</div>`;
 }
 
 
