@@ -1235,6 +1235,40 @@ select {
 }
 
 
+
+/* ── QTY CALCULATOR ──────────────────────── */
+.qty-calc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  gap: 8px;
+}
+
+.qty-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.qty-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.2px;
+  text-align: right;
+}
+
 /* ── PRICE GROUP ─────────────────────────── */
 .price-group {
   display: flex;

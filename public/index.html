@@ -156,12 +156,23 @@
               <input id="capitalPrice" type="text" placeholder="0" />
             </div>
             <div class="price-chips">
-              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',100)">100</button>
-              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',500)">500</button>
-              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',1000)">1,000</button>
-              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',5000)">5,000</button>
+              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',100,this)">100</button>
+              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',500,this)">500</button>
+              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',1000,this)">1,000</button>
+              <button type="button" class="price-chip" onclick="setPrice('capitalPrice','capitalCurrency',5000,this)">5,000</button>
             </div>
           </div>
+          <!-- QTY CALCULATOR -->
+          <div class="field field-span-2">
+            <label>Capital — Quantity Total</label>
+            <div class="qty-calc" id="qtyCalc">
+              <div class="qty-row"><span class="qty-label">100 pcs</span><span class="qty-val" id="qtyVal100">—</span></div>
+              <div class="qty-row"><span class="qty-label">500 pcs</span><span class="qty-val" id="qtyVal500">—</span></div>
+              <div class="qty-row"><span class="qty-label">1,000 pcs</span><span class="qty-val" id="qtyVal1000">—</span></div>
+              <div class="qty-row"><span class="qty-label">5,000 pcs</span><span class="qty-val" id="qtyVal5000">—</span></div>
+            </div>
+          </div>
+
           <div class="field field-span-2">
             <label>Wholesale Price</label>
             <div class="price-group">
@@ -174,10 +185,10 @@
               <input id="wholesalePrice" type="text" placeholder="0" />
             </div>
             <div class="price-chips">
-              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',100)">100</button>
-              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',500)">500</button>
-              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',1000)">1,000</button>
-              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',5000)">5,000</button>
+              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',100,this)">100</button>
+              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',500,this)">500</button>
+              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',1000,this)">1,000</button>
+              <button type="button" class="price-chip" onclick="setPrice('wholesalePrice','wholesaleCurrency',5000,this)">5,000</button>
             </div>
           </div>
           <div class="field field-span-2">
@@ -375,9 +386,41 @@
       }
     });
 
+    // Qty calculator
+    const QTY_AMOUNTS = [100, 500, 1000, 5000];
+    function updateQtyCalc() {
+      const priceInput = document.getElementById("capitalPrice");
+      const currSel    = document.getElementById("capitalCurrency");
+      if (!priceInput || !currSel) return;
+      // strip currency prefix and commas to get numeric value
+      const raw = priceInput.value.replace(/^[A-Z]{3}\s*/i, "").replace(/,/g, "").trim();
+      const num = parseFloat(raw);
+      const code = (currSel.value || "LAK").toUpperCase();
+      const symbols = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" };
+      const sym = symbols[code] || code + " ";
+      QTY_AMOUNTS.forEach(qty => {
+        const el = document.getElementById("qtyVal" + qty);
+        if (!el) return;
+        if (!isNaN(num) && num > 0) {
+          const total = num * qty;
+          el.textContent = sym + total.toLocaleString("en-US", {maximumFractionDigits: 2});
+        } else {
+          el.textContent = "—";
+        }
+      });
+    }
+
+    // Wire to capital price input & currency change
+    document.addEventListener("DOMContentLoaded", () => {
+      const cp = document.getElementById("capitalPrice");
+      const cc = document.getElementById("capitalCurrency");
+      if (cp) cp.addEventListener("input", updateQtyCalc);
+      if (cc) cc.addEventListener("change", updateQtyCalc);
+    });
+
     // Price quick-select chips
-    window.setPrice = function(priceId, currencyId, value) {
-      const priceInput    = document.getElementById(priceId);
+    window.setPrice = function(priceId, currencyId, value, chipEl) {
+      const priceInput     = document.getElementById(priceId);
       const currencySelect = document.getElementById(currencyId);
       if (!priceInput || !currencySelect) return;
       const code = currencySelect.value || "LAK";
@@ -385,7 +428,9 @@
       // highlight active chip
       const wrap = priceInput.closest(".field");
       wrap.querySelectorAll(".price-chip").forEach(c => c.classList.remove("price-chip--active"));
-      event.currentTarget.classList.add("price-chip--active");
+      if (chipEl) chipEl.classList.add("price-chip--active");
+      // update calculator if this is capital price
+      if (priceId === "capitalPrice") updateQtyCalc();
     };
   </script>
 </body>
