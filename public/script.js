@@ -609,21 +609,22 @@ function openDetail(id) {
     const uCurr  = (item.capitalCurrency || item.wholesaleCurrency || "LAK").toUpperCase();
     const uSym   = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" }[uCurr] || (uCurr + " ");
     const tiers  = [
-      { qty: 100,   label: "100 pcs"   },
-      { qty: 500,   label: "500 pcs"   },
-      { qty: 1000,  label: "1,000 pcs" },
-      { qty: 5000,  label: "5,000 pcs" }
+      { qty: 100,   label: "100 pcs",   pct: 85 },
+      { qty: 500,   label: "500 pcs",   pct: 55 },
+      { qty: 1000,  label: "1,000 pcs", pct: 40 },
+      { qty: 5000,  label: "5,000 pcs", pct: 25 }
     ];
     if (uPrice > 0) {
       mqp.innerHTML = `
-        <div class="mqp-header">Quantity Pricing (wholesale)</div>
+        <div class="mqp-header">Price per item by quantity</div>
         <div class="mqp-grid">
-          ${tiers.map(({ qty, label }) => {
-            const total = uPrice * qty;
-            const fmt = uSym + total.toLocaleString("en-US", { maximumFractionDigits: 0 });
+          ${tiers.map(({ qty, label, pct }) => {
+            const perItem = uPrice * (1 + pct / 100);
+            const fmt = uSym + perItem.toLocaleString("en-US", { maximumFractionDigits: 0 });
             return `<div class="mqp-row">
               <span class="mqp-qty">${label}</span>
-              <span class="mqp-total">${fmt}</span>
+              <span class="mqp-pct">+${pct}%</span>
+              <span class="mqp-total">${fmt}<small>/item</small></span>
             </div>`;
           }).join("")}
         </div>`;
@@ -714,12 +715,19 @@ function renderProducts(items) {
     const unitPrice = getNumeric(item.capitalPrice) || getNumeric(item.wholesalePrice);
     const wCurr = (item.capitalCurrency || item.wholesaleCurrency || "LAK").toUpperCase();
     const wSym = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" }[wCurr] || (wCurr + " ");
-    function fmtAbbrev(num) {
-      if (!num || !unitPrice) return "—";
-      if (num >= 1e9) return wSym + (num/1e9).toFixed(1).replace(/\.0$/,"") + "B";
-      if (num >= 1e6) return wSym + (num/1e6).toFixed(1).replace(/\.0$/,"") + "M";
-      if (num >= 1e3) return wSym + (num/1e3).toFixed(1).replace(/\.0$/,"") + "K";
-      return wSym + num.toLocaleString("en-US");
+    const cardTiers = [
+      { label: "100 pcs",   pct: 85  },
+      { label: "500 pcs",   pct: 55  },
+      { label: "1,000 pcs", pct: 40  },
+      { label: "5,000 pcs", pct: 25  }
+    ];
+    function fmtItem(pct) {
+      if (!unitPrice) return "—";
+      const p = unitPrice * (1 + pct / 100);
+      if (p >= 1e9) return wSym + (p/1e9).toFixed(1).replace(/\.0$/,"") + "B";
+      if (p >= 1e6) return wSym + (p/1e6).toFixed(1).replace(/\.0$/,"") + "M";
+      if (p >= 1e3) return wSym + (p/1e3).toFixed(1).replace(/\.0$/,"") + "K";
+      return wSym + p.toLocaleString("en-US", { maximumFractionDigits: 0 });
     }
 
     return `
@@ -740,22 +748,11 @@ function renderProducts(items) {
           <p class="card-itemno">${escapeHtml(item.itemNo || "—")}</p>
           <h3 class="card-title">${escapeHtml(item.itemName || "—")}</h3>
           <div class="card-prices">
+            ${cardTiers.map(({ label, pct }) => `
             <div class="cp-row">
-              <span class="cp-qty">100 pcs</span>
-              <span class="cp-price">${fmtAbbrev(unitPrice * 100)}</span>
-            </div>
-            <div class="cp-row">
-              <span class="cp-qty">500 pcs</span>
-              <span class="cp-price">${fmtAbbrev(unitPrice * 500)}</span>
-            </div>
-            <div class="cp-row">
-              <span class="cp-qty">1,000 pcs</span>
-              <span class="cp-price">${fmtAbbrev(unitPrice * 1000)}</span>
-            </div>
-            <div class="cp-row">
-              <span class="cp-qty">5,000 pcs</span>
-              <span class="cp-price">${fmtAbbrev(unitPrice * 5000)}</span>
-            </div>
+              <span class="cp-qty">${label}</span>
+              <span class="cp-price">${fmtItem(pct)}</span>
+            </div>`).join("")}
           </div>
         </div>
       </div>
