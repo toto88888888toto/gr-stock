@@ -14,7 +14,6 @@
 
   <link rel="stylesheet" href="style.css" />
   <script>
-    // Apply saved theme before paint to avoid flash
     (function(){
       const t = localStorage.getItem("gr-theme") || "light";
       document.documentElement.setAttribute("data-theme", t);
@@ -22,8 +21,6 @@
   </script>
 </head>
 <body>
-    <div class="loader-text">Loading…</div>
-  </div>
 
   <header class="topbar">
     <div class="container topbar-inner">
@@ -36,7 +33,7 @@
           <p class="brand-sub">Google Drive version</p>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
+      <div style="display:flex;align-items:center;gap:8px;">
         <button id="themeBtn" class="btn-theme" type="button" title="Toggle dark/light mode">🌙</button>
         <button id="logoutBtn" class="btn-logout" type="button">Sign Out</button>
       </div>
@@ -55,10 +52,9 @@
       </div>
       <div id="customerList" class="customer-logo-bar"></div>
       <div class="section-footer-right">
-        <button id="addCustomerBtn" class="btn-fab" type="button" title="Add Customer">+ Add Customer</button>
+        <button id="addCustomerBtn" class="btn-fab" type="button">+ Add Customer</button>
       </div>
 
-      <!-- inline form (hidden by default) -->
       <form id="customerForm" class="customer-form hidden" enctype="multipart/form-data">
         <input type="hidden" id="editingCustomerId" />
         <div class="field">
@@ -70,7 +66,7 @@
           <input id="customerLogo" type="file" accept="image/*" />
           <div id="customerLogoPreview" class="customer-logo-preview"></div>
         </div>
-        <div class="actions">
+        <div class="actions field-span-2">
           <button class="btn btn-primary" id="saveCustomerBtn" type="submit">Save</button>
           <button class="btn btn-secondary" id="cancelCustomerBtn" type="button">Cancel</button>
         </div>
@@ -81,117 +77,96 @@
     <section class="card">
       <div class="section-row-head">
         <div>
-          <h2 class="section-title">Add Product</h2>
+          <h2 id="productFormTitle" class="section-title">Add Product</h2>
           <p class="section-sub">Products and images are saved to Google Drive</p>
         </div>
       </div>
 
       <div id="productFormBody" class="collapsible-body collapsed">
-      <form id="productForm" class="form-grid" enctype="multipart/form-data">
+        <form id="productForm" class="form-grid" enctype="multipart/form-data">
 
-        <input type="hidden" id="editingId" />
+          <input type="hidden" id="editingId" />
 
-        <div class="field">
-          <label for="itemNo">Item No</label>
-          <input id="itemNo" type="text" value="AUTO" readonly />
-        </div>
-
-        <div class="field">
-          <label for="itemName">Item Name</label>
-          <input id="itemName" type="text" placeholder="Enter item name" required />
-        </div>
-
-        <div class="field">
-          <label for="category">Category</label>
-          <div class="autocomplete">
-            <input
-              type="text"
-              id="category"
-              placeholder="Type category"
-              autocomplete="off"
-            />
-            <div id="categorySuggestions" class="suggestions"></div>
+          <div class="field">
+            <label for="itemNo">Item No</label>
+            <input id="itemNo" type="text" value="AUTO" readonly />
           </div>
-        </div>
 
-        <div class="field">
-          <label for="client">Client</label>
-          <select id="client">
-            <option value="">— Select Company —</option>
-          </select>
-        </div>
+          <div class="field">
+            <label for="itemName">Item Name</label>
+            <input id="itemName" type="text" placeholder="Enter item name" required />
+          </div>
 
-        <div class="field">
-          <label for="capitalCurrency">Capital Currency</label>
-          <select id="capitalCurrency">
-            <option value="LAK">LAK</option>
-            <option value="THB">THB</option>
-            <option value="USD">USD</option>
-            <option value="CNY">CNY</option>
-          </select>
-        </div>
+          <div class="field">
+            <label for="category">Category</label>
+            <div class="autocomplete">
+              <input type="text" id="category" placeholder="Type category" autocomplete="off" />
+              <div id="categorySuggestions" class="suggestions"></div>
+            </div>
+          </div>
 
-        <div class="field">
-          <label for="capitalPrice">Capital Price</label>
-          <input id="capitalPrice" type="text" placeholder="LAK 0" />
-        </div>
+          <div class="field">
+            <label for="client">Client</label>
+            <select id="client">
+              <option value="">— Select Company —</option>
+            </select>
+          </div>
 
-        <div class="field">
-          <label for="wholesaleCurrency">Wholesale Currency</label>
-          <select id="wholesaleCurrency">
-            <option value="LAK">LAK</option>
-            <option value="THB">THB</option>
-            <option value="USD">USD</option>
-            <option value="CNY">CNY</option>
-          </select>
-        </div>
+          <div class="field">
+            <label for="capitalCurrency">Capital Currency</label>
+            <select id="capitalCurrency">
+              <option value="LAK">LAK</option>
+              <option value="THB">THB</option>
+              <option value="USD">USD</option>
+              <option value="CNY">CNY</option>
+            </select>
+          </div>
 
-        <div class="field">
-          <label for="wholesalePrice">Wholesale Price</label>
-          <input id="wholesalePrice" type="text" placeholder="LAK 0" />
-        </div>
+          <div class="field">
+            <label for="capitalPrice">Capital Price</label>
+            <input id="capitalPrice" type="text" placeholder="LAK 0" />
+          </div>
 
-        <div class="field field-span-2">
-          <label for="descEn">Description (EN)</label>
-          <textarea
-            id="descEn"
-            rows="3"
-            placeholder="Enter English description"
-          ></textarea>
-        </div>
+          <div class="field">
+            <label for="wholesaleCurrency">Wholesale Currency</label>
+            <select id="wholesaleCurrency">
+              <option value="LAK">LAK</option>
+              <option value="THB">THB</option>
+              <option value="USD">USD</option>
+              <option value="CNY">CNY</option>
+            </select>
+          </div>
 
-        <div class="field field-span-2">
-          <label for="descLa">Description (LA)</label>
-          <textarea
-            id="descLa"
-            rows="3"
-            placeholder="Enter Lao description"
-          ></textarea>
-        </div>
+          <div class="field">
+            <label for="wholesalePrice">Wholesale Price</label>
+            <input id="wholesalePrice" type="text" placeholder="LAK 0" />
+          </div>
 
-        <div class="field field-span-2">
-          <label for="photos">Product Photos</label>
-          <input id="photos" type="file" accept="image/*" multiple />
-          <small>You can upload up to 5 photos</small>
-          <div id="photoPreview" class="photo-preview"></div>
-        </div>
+          <div class="field field-span-2">
+            <label for="descEn">Description (EN)</label>
+            <textarea id="descEn" rows="3" placeholder="Enter English description"></textarea>
+          </div>
 
-        <div class="actions field-span-2">
-          <button class="btn btn-primary" id="saveBtn" type="submit">
-            Save Product
-          </button>
+          <div class="field field-span-2">
+            <label for="descLa">Description (LA)</label>
+            <textarea id="descLa" rows="3" placeholder="Enter Lao description"></textarea>
+          </div>
 
-          <button class="btn btn-secondary" id="clearBtn" type="button">
-            Clear Form
-          </button>
+          <div class="field field-span-2">
+            <label for="photos">Product Photos</label>
+            <input id="photos" type="file" accept="image/*" multiple />
+            <small>You can upload up to 5 photos</small>
+            <div id="photoPreview" class="photo-preview"></div>
+          </div>
 
-          <button class="btn btn-secondary" id="downloadExcelBtn" type="button">
-            Download Excel
-          </button>
-        </div>
+          <div class="actions field-span-2">
+            <button class="btn btn-primary" id="saveBtn" type="submit">Save Product</button>
+            <button class="btn btn-secondary" id="clearBtn" type="button">Clear Form</button>
+            <button class="btn btn-secondary" id="downloadExcelBtn" type="button">Download Excel</button>
+          </div>
 
-      </form>
-      </div><!-- /collapsible-body -->
+        </form>
+      </div>
       <div class="section-footer-right">
         <button class="btn-fab" id="toggleProductFormBtn" type="button">+ Add Product</button>
       </div>
@@ -200,47 +175,40 @@
     <!-- SEARCH -->
     <section class="card">
       <div class="section-head">
-        <h2>Search Products</h2>
-        <p class="section-sub">Search and filter products</p>
+        <div>
+          <h2>Search Products</h2>
+          <p class="section-sub">Search and filter your inventory</p>
+        </div>
       </div>
 
       <div class="toolbar-grid">
-
         <div class="field toolbar-search">
           <label for="searchInput">Search</label>
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="Search by name, category, client or description"
-          />
+          <input id="searchInput" type="text" placeholder="Name, category, client, description…" />
         </div>
-
         <div class="field">
           <label for="categoryFilter">Category</label>
           <select id="categoryFilter">
             <option value="">All Categories</option>
           </select>
         </div>
-
         <div class="field">
           <label for="clientFilter">Client</label>
           <select id="clientFilter">
             <option value="">All Clients</option>
           </select>
         </div>
-
         <div class="field">
           <label for="priceFilter">Price Range</label>
           <select id="priceFilter">
             <option value="">All Prices</option>
-            <option value="0-100">0 - 100</option>
-            <option value="101-500">101 - 500</option>
-            <option value="501-1000">501 - 1000</option>
-            <option value="1001-5000">1001 - 5000</option>
-            <option value="5001+">5001+</option>
+            <option value="0-100">0 – 100</option>
+            <option value="101-500">101 – 500</option>
+            <option value="501-1000">501 – 1,000</option>
+            <option value="1001-5000">1,001 – 5,000</option>
+            <option value="5001+">5,001+</option>
           </select>
         </div>
-
         <div class="field">
           <label for="sortBy">Sort By</label>
           <select id="sortBy">
@@ -254,24 +222,21 @@
             <option value="itemno-desc">Item No Desc</option>
           </select>
         </div>
-
         <div class="field toolbar-btn-wrap">
           <label>&nbsp;</label>
-          <button id="resetFilterBtn" class="btn btn-secondary" type="button">
-            Reset Filters
-          </button>
+          <button id="resetFilterBtn" class="btn btn-secondary" type="button">Reset</button>
         </div>
-
       </div>
     </section>
 
     <!-- PRODUCT LIST -->
     <section class="card">
       <div class="section-head">
-        <h2>Product List</h2>
-        <p class="section-sub">All items saved to Google Drive & Sheets</p>
+        <div>
+          <h2>Product List</h2>
+          <p class="section-sub">All items saved to Google Drive &amp; Sheets</p>
+        </div>
       </div>
-
       <div id="productList" class="product-list">
         <div class="empty-state">No products found.</div>
       </div>
@@ -294,7 +259,6 @@
             <h2 id="modalItemName">Item Name</h2>
           </div>
         </div>
-
         <div class="modal-actions">
           <button type="button" id="modalEditBtn" class="modal-edit-btn">Edit</button>
           <button type="button" id="modalDeleteBtn" class="modal-delete-btn">Delete</button>
@@ -308,17 +272,14 @@
           <span>Category</span>
           <strong id="modalCategory">-</strong>
         </div>
-
         <div class="info-box">
           <span>Client</span>
           <strong id="modalClient">-</strong>
         </div>
-
         <div class="info-box">
           <span>Capital</span>
           <strong id="modalCapital">-</strong>
         </div>
-
         <div class="info-box">
           <span>Wholesale</span>
           <strong id="modalWholesale">-</strong>
