@@ -89,6 +89,24 @@ async function getOrCreateSubfolder(name) {
   return folder.data.id;
 }
 
+
+// ── Get or create category subfolder inside 'Product photos' ───
+async function getOrCreateCategoryFolder(category) {
+  const productPhotosFolderId = await getOrCreateSubfolder('Product photos');
+  const safeName = (category || 'Uncategorized').trim() || 'Uncategorized';
+  const res = await drive.files.list({
+    q: `name='${safeName}' and mimeType='application/vnd.google-apps.folder' and '${productPhotosFolderId}' in parents and trashed=false`,
+    fields: 'files(id, name)',
+  });
+  if (res.data.files.length > 0) return res.data.files[0].id;
+  const folder = await drive.files.create({
+    requestBody: { name: safeName, mimeType: 'application/vnd.google-apps.folder', parents: [productPhotosFolderId] },
+    fields: 'id',
+  });
+  console.log('[Drive] Created category folder:', safeName, folder.data.id);
+  return folder.data.id;
+}
+
 // ── Multer (memory storage — no local files) ───────────────────
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -297,7 +315,8 @@ app.post("/api/items", upload.array("photos", 20), async (req, res) => {
   try {
     const existingItems = await getAllItems();
 
-    const photoFolderId = await getOrCreateSubfolder("Product photos");
+    const item_category_pre = String(req.body.category || '').trim();
+    const photoFolderId = await getOrCreateCategoryFolder(item_category_pre);
     const photoPaths = [];
     for (const file of (req.files || [])) {
       const url = await uploadToCloudinary(file.buffer, file.originalname, photoFolderId);
@@ -379,7 +398,8 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
     }
 
     const keptPhotos = parsePhotos(req.body.existingPhotos);
-    const photoFolderId = await getOrCreateSubfolder("Product photos");
+    const put_category = String(req.body.category || '').trim();
+    const photoFolderId = await getOrCreateCategoryFolder(put_category);
     const newPhotoPaths = [];
     for (const file of (req.files || [])) {
       const url = await uploadToCloudinary(file.buffer, file.originalname, photoFolderId);
