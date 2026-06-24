@@ -1,5 +1,32 @@
 const productForm = document.getElementById("productForm");
 
+/* ─── TOAST NOTIFICATION ─────────────────────────────────── */
+function showToast(message, duration = 2000) {
+  const existing = document.getElementById("gr-toast");
+  if (existing) existing.remove();
+  const toast = document.createElement("div");
+  toast.id = "gr-toast";
+  toast.textContent = message;
+  Object.assign(toast.style, {
+    position: "fixed", bottom: "32px", left: "50%",
+    transform: "translateX(-50%)",
+    background: "#22c55e", color: "#fff",
+    padding: "12px 28px", borderRadius: "12px",
+    fontSize: "15px", fontWeight: "600",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+    zIndex: "99999", opacity: "0",
+    transition: "opacity 0.3s ease"
+  });
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity = "1"; });
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+
+
 /* ─── THEME (light / dark) ───────────────────────────────── */
 (function(){
   const saved = localStorage.getItem("gr-theme") || "light";
@@ -854,9 +881,9 @@ productForm.addEventListener("submit", async e => {
     const data = await parseJsonSafe(res);
     if (!res.ok || !data.success) throw new Error(data.message || "Save failed");
 
-    alert(isEditing
-      ? `Updated successfully. Item No: ${data.item?.itemNo || itemNo.value || ""}`
-      : `Saved successfully. Item No: ${data.item?.itemNo || ""}`
+    showToast(isEditing
+      ? `✓ Updated — Item No: ${data.item?.itemNo || itemNo.value || ""}`
+      : `✓ Saved — Item No: ${data.item?.itemNo || ""}`
     );
     resetForm();
     closeProductForm();
