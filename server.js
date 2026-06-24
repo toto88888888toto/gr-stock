@@ -58,15 +58,16 @@ const sheets = google.sheets({ version: "v4", auth: sheetsAuth });
 // ── Google Drive config (OAuth2 - personal account) ───────────
 let drive = null;
 function initDrive() {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+  const clientId = (process.env.GOOGLE_CLIENT_ID || "").trim();
+  const clientSecret = (process.env.GOOGLE_CLIENT_SECRET || "").trim();
+  const refreshToken = (process.env.GOOGLE_REFRESH_TOKEN || "").trim();
   if (!clientId || !clientSecret || !refreshToken || !DRIVE_FOLDER_ID) {
     console.log("[Drive] OAuth credentials not set — Drive uploads disabled");
     console.log("[Drive] clientId:", !!clientId, "secret:", !!clientSecret, "token:", !!refreshToken, "folder:", !!DRIVE_FOLDER_ID);
     return;
   }
-  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, "http://localhost:3333/callback");
+  console.log("[Drive] Using token prefix:", refreshToken.slice(0, 10), "... length:", refreshToken.length);
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, "https://gr-stock-production-83a5.up.railway.app/oauth-callback");
   oauth2Client.setCredentials({ refresh_token: refreshToken });
   drive = google.drive({ version: "v3", auth: oauth2Client });
   console.log("[Drive] Google Drive initialized (OAuth2) — folder:", DRIVE_FOLDER_ID);
