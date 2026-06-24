@@ -7,6 +7,7 @@ const { Readable } = require("stream");
 const ExcelJS = require("exceljs");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
+const cloudinary = require("cloudinary").v2;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -55,59 +56,19 @@ const sheetsAuth = new google.auth.GoogleAuth({
 });
 const sheets = google.sheets({ version: "v4", auth: sheetsAuth });
 
-// ── Google Drive config (OAuth2) ─────────────────────────────
-let drive = null;
-let oauth2Client = null;
-function initDrive() {
-  const clientId = (process.env.GOOGLE_CLIENT_ID || "").trim();
-  const clientSecret = (process.env.GOOGLE_CLIENT_SECRET || "").trim();
-  const refreshToken = (process.env.GOOGLE_REFRESH_TOKEN || "").trim();
-  if (!clientId || !clientSecret || !refreshToken || !DRIVE_FOLDER_ID) {
-    console.log("[Drive] OAuth credentials not set — Drive uploads disabled");
-    console.log("[Drive] clientId:", !!clientId, "secret:", !!clientSecret, "token:", !!refreshToken, "folder:", !!DRIVE_FOLDER_ID);
-    return;
-  }
-  console.log("[Drive] clientId prefix:", clientId.slice(0, 12));
-  console.log("[Drive] token prefix:", refreshToken.slice(0, 10), "length:", refreshToken.length);
-  oauth2Client = new google.auth.OAuth2(clientId, clientSecret, "https://gr-stock-production-83a5.up.railway.app/oauth-callback");
-  oauth2Client.setCredentials({ refresh_token: refreshToken });
-  drive = google.drive({ version: "v3", auth: oauth2Client });
-  console.log("[Drive] Google Drive initialized (OAuth2) — folder:", DRIVE_FOLDER_ID);
-}
-initDrive();
+// ── Cloudinary config ─────────────────────────────────────────
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true
+});
+console.log("[Cloudinary] configured — cloud:", process.env.CLOUDINARY_CLOUD_NAME);
 
-// ── Get or create a named subfolder inside DRIVE_FOLDER_ID ─────
-async function getOrCreateSubfolder(name) {
-  if (!drive) throw new Error("Drive not initialized");
-  const res = await drive.files.list({
-    q: `name='${name}' and mimeType='application/vnd.google-apps.folder' and '${DRIVE_FOLDER_ID}' in parents and trashed=false`,
-    fields: "files(id, name)",
-  });
-  if (res.data.files.length > 0) return res.data.files[0].id;
-  const folder = await drive.files.create({
-    requestBody: { name, mimeType: "application/vnd.google-apps.folder", parents: [DRIVE_FOLDER_ID] },
-    fields: "id",
-  });
-  console.log("[Drive] Created subfolder:", name, folder.data.id);
-  return folder.data.id;
-}
-
-
-// ── Get or create category subfolder inside 'Product photos' ───
-async function getOrCreateCategoryFolder(category) {
-  const productPhotosFolderId = await getOrCreateSubfolder('Product photos');
-  const safeName = (category || 'Uncategorized').trim() || 'Uncategorized';
-  const res = await drive.files.list({
-    q: `name='${safeName}' and mimeType='application/vnd.google-apps.folder' and '${productPhotosFolderId}' in parents and trashed=false`,
-    fields: 'files(id, name)',
-  });
-  if (res.data.files.length > 0) return res.data.files[0].id;
-  const folder = await drive.files.create({
-    requestBody: { name: safeName, mimeType: 'application/vnd.google-apps.folder', parents: [productPhotosFolderId] },
-    fields: 'id',
-  });
-  console.log('[Drive] Created category folder:', safeName, folder.data.id);
-  return folder.data.id;
+// ── Get Cloudinary folder path for a category ─────────────────
+function getOrCreateCategoryFolder(category) {
+  const safeName = (category || "Uncategorized").trim() || "Uncategorized";
+  return "gr-stock/Product photos/" + safeName;
 }
 
 // ── Multer (memory storage — no local files) ───────────────────
@@ -271,29 +232,27 @@ async function getAllCustomers() {
     .filter(c => c.id || c.name);
 }
 
-// ── Google Drive helpers (OAuth2) ─────────────────────────────
-async function uploadToCloudinary(buffer, filename, folderId = DRIVE_FOLDER_ID) {
-  if (!drive) throw new Error("Google Drive not initialized");
-  const mimeType = filename.match(/\.png$/i) ? "image/png" : "image/jpeg";
-  const file = await drive.files.create({
-    requestBody: { name: filename, parents: [folderId] },
-    media: { mimeType, body: Readable.from(buffer) },
-    fields: "id"
+// ── Cloudinary helpers ────────────────────────────────────────
+async function uploadToCloudinary(buffer, filename, folder = "gr-stock") {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "image", use_filename: true, unique_filename: true },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url);
+      }
+    );
+    uploadStream.end(buffer);
   });
-  await drive.permissions.create({
-    fileId: file.data.id,
-    requestBody: { role: "reader", type: "anyone" }
-  });
-  return `https://lh3.googleusercontent.com/d/${file.data.id}`;
 }
 
 async function deleteFromCloudinary(url) {
   try {
-    if (!drive) return;
-    const match = String(url || "").match(/id=([^&]+)/);
-    if (match) await drive.files.delete({ fileId: match[1] });
+    if (!url || !url.includes("cloudinary.com")) return;
+    const match = url.match(/\/gr-stock\/([^.]+)/);
+    if (match) await cloudinary.uploader.destroy("gr-stock/" + match[1]);
   } catch (e) {
-    console.warn("Failed to delete Drive file:", e.message);
+    console.warn("Failed to delete Cloudinary file:", e.message);
   }
 }
 
@@ -319,10 +278,10 @@ app.post("/api/items", upload.array("photos", 20), async (req, res) => {
     const existingItems = await getAllItems();
 
     const item_category_pre = String(req.body.category || '').trim();
-    const photoFolderId = await getOrCreateCategoryFolder(item_category_pre);
+    const photoFolder = getOrCreateCategoryFolder(item_category_pre);
     const photoPaths = [];
     for (const file of (req.files || [])) {
-      const url = await uploadToCloudinary(file.buffer, file.originalname, photoFolderId);
+      const url = await uploadToCloudinary(file.buffer, file.originalname, photoFolder);
       photoPaths.push(url);
     }
 
@@ -402,10 +361,10 @@ app.put("/api/items/:id", upload.array("photos", 20), async (req, res) => {
 
     const keptPhotos = parsePhotos(req.body.existingPhotos);
     const put_category = String(req.body.category || '').trim();
-    const photoFolderId = await getOrCreateCategoryFolder(put_category);
+    const photoFolder = getOrCreateCategoryFolder(put_category);
     const newPhotoPaths = [];
     for (const file of (req.files || [])) {
-      const url = await uploadToCloudinary(file.buffer, file.originalname, photoFolderId);
+      const url = await uploadToCloudinary(file.buffer, file.originalname, photoFolder);
       newPhotoPaths.push(url);
     }
     const finalPhotos = uniqueArray([...keptPhotos, ...newPhotoPaths]);

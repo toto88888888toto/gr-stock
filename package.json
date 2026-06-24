@@ -10,12 +10,13 @@
     "postinstall": "node -e \"const fs=require('fs'),p='node_modules/gtoken/build/src/index.js';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace('https://www.googleapis.com/oauth2/v4/token','https://oauth2.googleapis.com/token'))\""
   },
   "dependencies": {
+    "cloudinary": "^2.10.0",
     "cors": "^2.8.5",
     "exceljs": "^4.4.0",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "googleapis": "^144.0.0",
     "multer": "^1.4.5-lts.2",
-    "uuid": "^11.1.0",
-    "express-session": "^1.18.1"
+    "uuid": "^11.1.0"
   }
 }
