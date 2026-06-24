@@ -55,20 +55,24 @@ const sheetsAuth = new google.auth.GoogleAuth({
 });
 const sheets = google.sheets({ version: "v4", auth: sheetsAuth });
 
-// ── Google Drive config (service account) ────────────────────
+// ── Google Drive config (OAuth2) ─────────────────────────────
 let drive = null;
+let oauth2Client = null;
 function initDrive() {
-  if (!DRIVE_FOLDER_ID) {
-    console.log("[Drive] DRIVE_FOLDER_ID not set — Drive uploads disabled");
+  const clientId = (process.env.GOOGLE_CLIENT_ID || "").trim();
+  const clientSecret = (process.env.GOOGLE_CLIENT_SECRET || "").trim();
+  const refreshToken = (process.env.GOOGLE_REFRESH_TOKEN || "").trim();
+  if (!clientId || !clientSecret || !refreshToken || !DRIVE_FOLDER_ID) {
+    console.log("[Drive] OAuth credentials not set — Drive uploads disabled");
+    console.log("[Drive] clientId:", !!clientId, "secret:", !!clientSecret, "token:", !!refreshToken, "folder:", !!DRIVE_FOLDER_ID);
     return;
   }
-  const driveAuth = new google.auth.GoogleAuth({
-    credentials: CREDENTIALS,
-    scopes: ["https://www.googleapis.com/auth/drive"]
-  });
-  drive = google.drive({ version: "v3", auth: driveAuth });
-  console.log("[Drive] Google Drive initialized (service account) — folder:", DRIVE_FOLDER_ID);
-  console.log("[Drive] Service account email:", CREDENTIALS.client_email);
+  console.log("[Drive] clientId prefix:", clientId.slice(0, 12));
+  console.log("[Drive] token prefix:", refreshToken.slice(0, 10), "length:", refreshToken.length);
+  oauth2Client = new google.auth.OAuth2(clientId, clientSecret, "https://gr-stock-production-83a5.up.railway.app/oauth-callback");
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
+  drive = google.drive({ version: "v3", auth: oauth2Client });
+  console.log("[Drive] Google Drive initialized (OAuth2) — folder:", DRIVE_FOLDER_ID);
 }
 initDrive();
 
@@ -708,6 +712,17 @@ app.get("/api/me", (req, res) => {
 
 app.post("/api/logout", (req, res) => {
   req.session.destroy(() => res.json({ success: true }));
+});
+
+// ── Drive status / debug ──────────────────────────────────────
+app.get("/drive-status", async (req, res) => {
+  if (!drive) return res.json({ ok: false, reason: "Drive not initialized — check GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, DRIVE_FOLDER_ID" });
+  try {
+    const result = await drive.files.list({ q: `'${DRIVE_FOLDER_ID}' in parents`, pageSize: 1, fields: "files(id,name)" });
+    res.json({ ok: true, folder: DRIVE_FOLDER_ID, files: result.data.files });
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
+  }
 });
 
 // ── OAuth flow to generate refresh token ───────────────────────
