@@ -1171,67 +1171,44 @@ select {
   gap: 10px;
 }
 
-.fab-main {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--r-full);
-  background: var(--accent);
-  color: var(--accent-fg);
-  font-size: 28px;
-  font-weight: 300;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(0,0,0,.25);
-  transition: transform .2s, background .15s, box-shadow .2s;
-  flex-shrink: 0;
-}
-.fab-main:hover {
-  box-shadow: 0 6px 20px rgba(0,0,0,.3);
-  transform: scale(1.05);
-}
-.fab-main--open {
-  transform: rotate(45deg) scale(1.05);
-}
-
-.fab-dial {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.fab-dial-item {
+.fab-btn {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--r-full);
-  padding: 10px 18px 10px 14px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.12);
-  font-size: 13px;
+  padding: 13px 22px 13px 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  font-size: 14px;
   font-weight: 600;
-  color: var(--text);
-  transition: background .15s, transform .15s, box-shadow .15s;
   white-space: nowrap;
+  transition: transform .15s, box-shadow .15s, background .15s;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
-.fab-dial-item:hover {
-  background: var(--bg);
+.fab-btn:hover {
   transform: translateX(-3px);
-  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+  box-shadow: 0 6px 20px rgba(0,0,0,.18);
+  background: var(--bg);
+}
+.fab-btn--primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+.fab-btn--primary:hover {
+  background: var(--accent);
+  filter: brightness(1.08);
 }
 
-.fab-dial-icon {
+.fab-btn-icon {
   font-size: 18px;
   line-height: 1;
 }
 
-.fab-dial-label {
+.fab-btn-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text);
 }
 
 

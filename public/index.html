@@ -297,17 +297,14 @@
 
   <!-- ═══════ FIXED FAB ═══════ -->
   <div class="fab-wrap">
-    <div class="fab-dial hidden" id="fabDial">
-      <button class="fab-dial-item" id="fabAddCustomer">
-        <span class="fab-dial-icon">🏢</span>
-        <span class="fab-dial-label">Add Customer</span>
-      </button>
-      <button class="fab-dial-item" id="fabAddProduct">
-        <span class="fab-dial-icon">📦</span>
-        <span class="fab-dial-label">Add Product</span>
-      </button>
-    </div>
-    <button class="fab-main" id="fabMain" title="Add">+</button>
+    <button class="fab-btn" id="fabAddCustomer">
+      <span class="fab-btn-icon">🏢</span>
+      <span class="fab-btn-label">Add Customer</span>
+    </button>
+    <button class="fab-btn fab-btn--primary" id="fabAddProduct">
+      <span class="fab-btn-icon">📦</span>
+      <span class="fab-btn-label">Add Product</span>
+    </button>
   </div>
 
   <!-- Hidden trigger buttons (required by script.js) -->
@@ -319,29 +316,11 @@
   <script src="script.js"></script>
   <script>
     // ── FAB + Modal logic (runs after script.js) ──
-    const fabMain    = document.getElementById("fabMain");
-    const fabDial    = document.getElementById("fabDial");
     const productModal  = document.getElementById("productModal");
     const customerModal = document.getElementById("customerModal");
 
-    // FAB toggle
-    fabMain.addEventListener("click", e => {
-      e.stopPropagation();
-      const isOpen = !fabDial.classList.contains("hidden");
-      fabDial.classList.toggle("hidden", isOpen);
-      fabMain.classList.toggle("fab-main--open", !isOpen);
-    });
-    document.addEventListener("click", e => {
-      if (!e.target.closest(".fab-wrap")) {
-        fabDial.classList.add("hidden");
-        fabMain.classList.remove("fab-main--open");
-      }
-    });
-
     // ── Product Modal ──
     function openProductModal() {
-      fabDial.classList.add("hidden");
-      fabMain.classList.remove("fab-main--open");
       productModal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
       openProductForm(); // script.js: removes .collapsed
@@ -368,8 +347,6 @@
 
     // ── Customer Modal ──
     function openCustomerModal() {
-      fabDial.classList.add("hidden");
-      fabMain.classList.remove("fab-main--open");
       customerModal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
       document.getElementById("addCustomerBtn").click(); // script.js: resets + shows form
@@ -387,7 +364,7 @@
       setTimeout(closeCustomerModal, 400);
     });
 
-    // FAB buttons
+    // FAB buttons (direct — no dial)
     document.getElementById("fabAddProduct").addEventListener("click", openProductModal);
     document.getElementById("fabAddCustomer").addEventListener("click", openCustomerModal);
 
