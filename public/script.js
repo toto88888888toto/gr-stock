@@ -245,55 +245,23 @@ function formatDisplay(input, currencySelect) {
 
 function refreshPriceWithCurrency(input, currencySelect) {
   formatDisplay(input, currencySelect);
-  updateQtyCalc();
-}
-
-const QTY_TIERS = [
-  { qty: 100,  id: "qtyVal100",  pct: 85 },
-  { qty: 500,  id: "qtyVal500",  pct: 55 },
-  { qty: 1000, id: "qtyVal1000", pct: 40 },
-  { qty: 5000, id: "qtyVal5000", pct: 25 }
-];
-
-function updateQtyCalc() {
-  const raw = cleanMoneyInput(capitalPrice.value);
-  const base = parseFloat(raw) || 0;
-  const sym = getCurrencySymbol(normalizeCurrencyCode(capitalCurrency.value));
-  QTY_TIERS.forEach(({ id, pct }) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (base > 0) {
-      const price = base * (1 + pct / 100);
-      el.textContent = sym + formatNumberWithCommas(Math.round(price).toString());
-    } else {
-      el.textContent = "—";
-    }
-  });
-}
-
-function setPrice(fieldId, currencyId, amount, btn) {
-  const field = document.getElementById(fieldId);
-  const curr = document.getElementById(currencyId);
-  if (!field || !curr) return;
-  field.value = amount;
-  formatDisplay(field, curr);
-  updateQtyCalc();
-  // highlight active chip
-  document.querySelectorAll(".price-chip").forEach(b => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
 }
 
 function reverseFromQty(pct) {
-  // prompt user to enter qty price, then back-calculate capital
-  const sym = getCurrencySymbol(normalizeCurrencyCode(capitalCurrency.value));
-  const input = prompt(`Enter the selling price per item for this quantity tier (${sym}):`);
+  const priceInput = document.getElementById("capitalPrice");
+  const currSel    = document.getElementById("capitalCurrency");
+  if (!priceInput || !currSel) return;
+  const code = (currSel.value || "LAK").toUpperCase();
+  const symbols = { LAK: "₭", THB: "฿", USD: "$", CNY: "¥" };
+  const sym = symbols[code] || (code + " ");
+  const input = prompt("Enter qty price (" + sym + ") to back-calculate capital:");
   if (!input) return;
   const qtyPrice = parseFloat(input.replace(/[^0-9.]/g, ""));
   if (!qtyPrice || isNaN(qtyPrice)) return;
-  const capital = qtyPrice / (1 + pct / 100);
-  capitalPrice.value = Math.round(capital).toString();
-  formatDisplay(capitalPrice, capitalCurrency);
-  updateQtyCalc();
+  const capital = Math.round(qtyPrice / (1 + pct / 100));
+  priceInput.value = capital.toString();
+  formatDisplay(priceInput, currSel);
+  if (typeof updateQtyCalc === "function") updateQtyCalc();
 }
 
 function syncEditingIdInput() {
@@ -888,7 +856,7 @@ photosInput.addEventListener("change", () => {
   else photoPreview.innerHTML = "";
 });
 
-capitalPrice.addEventListener("input", function () { formatDisplay(this, capitalCurrency); updateQtyCalc(); });
+capitalPrice.addEventListener("input", function () { formatDisplay(this, capitalCurrency); });
 wholesalePrice.addEventListener("input", function () { formatDisplay(this, wholesaleCurrency); });
 capitalCurrency.addEventListener("change", () => { refreshPriceWithCurrency(capitalPrice, capitalCurrency); });
 wholesaleCurrency.addEventListener("change", () => { refreshPriceWithCurrency(wholesalePrice, wholesaleCurrency); });
@@ -990,6 +958,7 @@ window.closeDetail = closeDetail;
 window.deleteProduct = deleteProduct;
 window.startEditCustomer = startEditCustomer;
 window.deleteCustomer = deleteCustomer;
+window.reverseFromQty = reverseFromQty;
 
 /* =========================
    COLLAPSIBLE PRODUCT FORM
